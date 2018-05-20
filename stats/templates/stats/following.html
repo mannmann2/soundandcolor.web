@@ -1,0 +1,9 @@
+{% load index %}
+
+{% if following %}
+    <ol>
+    {% for artist in following %}
+        <li><a href="{% url 'stats:artist' artist|index:'1' %}?token={{ token }}"><img src={{ artist|index:'2' }}></img></a>&emsp;<font size='+2'>{{ artist|index:'0' }}</font>&emsp;&emsp;&emsp;<font size='+3'>{{ artist|index:'3' }}</font></li>
+    {% endfor %}
+    </ol>
+{% endif %}

@@ -1,0 +1,6 @@
+{% load index %}
+<ol>
+	{% for track in saved %}
+        <li><a href="{{ track|index:'1' }}" target="_blank">{{ track|index:'0' }}</a>&emsp;//&emsp;<a href="{% url 'stats:artist' track|index:'3' %}?token={{ token }}">{{ track|index:'2' }}</a>&emsp;//&emsp;<a href="{% url 'stats:album' track|index:'5' %}?token={{ token }}">{{ track|index:'4' }}</a>&emsp;//&emsp;{{ track|index:'6' }}</li>
+    {% endfor %}
+</ol>

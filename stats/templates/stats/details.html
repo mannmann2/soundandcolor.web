@@ -1,0 +1,15 @@
+{%if img %}
+	<img src={{ img }}>
+{% endif %}
+<p><font size="+3"><b>{{ name }}</b></font>&emsp;&emsp;&emsp;<i><font size="+1">{{ foll }} Followers</font><br>
+{% if id %}
+	{{ id }}<br>
+{% endif %}
+{{ email }}</i></p>
+
+<ul>
+	<a href="{% url 'stats:top' username %}?type=tracks&time=short_term">Top</a><br>
+	<a href="{% url 'stats:following' username %}">Following</a><br>
+    <a href="{% url 'stats:saved' username %}">Saved Tracks</a><br>
+    <!-- <a href="{% url 'stats:genres' username %}">Genres</a> -->
+</ul>

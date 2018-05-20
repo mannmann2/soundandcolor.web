@@ -1,0 +1,9 @@
+{% load index %}
+
+<h4><a href="https://open.spotify.com/track/3wrqiZJKMSpLBvgFJfFOp1" target="_blank">Sound & Color</a></h4>
+
+<ol>
+{% for user in users %}
+    <li><a href="{% url 'stats:details' user|index:'2' %}">{{ user|index:'1' }}</a>&emsp;-&emsp;{{ user|index:'2' }}</li>
+{% endfor %}
+</ol>
