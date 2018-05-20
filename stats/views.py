@@ -66,7 +66,7 @@ def users(request):
 
     users = []
     for user in f:
-        if not user.token:
+        if user.token:
             data = {
                 "grant_type": "refresh_token",
                 "refresh_token": user.refresh_token,
@@ -158,25 +158,35 @@ def following(request, username):
 
 def saved(request, username):
     user = User.objects.get(username = username)
-    url = "https://api.spotify.com/v1/me/tracks?limit=50&access_token=" + user.token
+    ttype = request.GET['type']
+    url = "https://api.spotify.com/v1/me/" + ttype + "?limit=50&access_token=" + user.token
     res = requests.get(url)
     js = res.json()
 
     saved = []
     while True:
         for item in js['items']:
-            dur = get_time(item['track']['duration_ms'])
-            saved.append((item['track']['name'], item['track']['external_urls']['spotify'], 
-                        item['track']['album']['artists'][0]['name'], item['track']['album']['artists'][0]['id'],
-                        item['track']['album']['name'], item['track']['album']['id'], dur))
-
+            if ttype=='tracks':
+                dur = get_time(item['track']['duration_ms'])
+                saved.append((item['track']['name'], item['track']['external_urls']['spotify'], 
+                            item['track']['album']['artists'][0]['name'], item['track']['album']['artists'][0]['id'],
+                            item['track']['album']['name'], item['track']['album']['id'], dur))
+            else:
+                saved.append((item['album']['name'], item['album']['id'], 
+                        item['album']['release_date'][:4], item['album']['artists'][0]['name'], 
+                        item['album']['artists'][0]['id'], item['album']['images'][-1]['url']))
+        
         if js['next']:
             res = requests.get(js['next']+"&access_token=" + user.token)
             js = res.json()
         else:
             break
 
-    return render(request, 'stats/saved.html', {'saved':saved, 'token':user.token})
+    if ttype=='tracks':
+        return render(request, 'stats/savedTracks.html', {'saved':saved, 'token':user.token})
+    else:
+        return render(request, 'stats/savedAlbums.html', {'saved':saved, 'token':user.token})
+
 
 def genres(request, username):
     user = User.objects.get(username = username)

@@ -8,8 +8,9 @@
 {{ email }}</i></p>
 
 <ul>
-	<a href="{% url 'stats:top' username %}?type=tracks&time=short_term">Top</a><br>
+	<!-- <a href="{% url 'stats:top' username %}?type=tracks&time=short_term">Top</a><br> -->
 	<a href="{% url 'stats:following' username %}">Following</a><br>
-    <a href="{% url 'stats:saved' username %}">Saved Tracks</a><br>
+    <a href="{% url 'stats:saved' username %}?type=tracks">Saved Tracks</a><br>
+    <a href="{% url 'stats:saved' username %}?type=albums">Saved Albums</a><br>
     <!-- <a href="{% url 'stats:genres' username %}">Genres</a> -->
 </ul>
