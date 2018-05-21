@@ -4,6 +4,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
 
+import spotipy
+
 from .models import User #Choice, Question,
 
 import requests, json
@@ -123,18 +125,36 @@ def top(request, username):
     user=User.objects.get(username=username)
     ttype = request.GET['type']
     time = request.GET['time']
-    url = "https://api.spotify.com/v1/top/artists?access_token=" + user.token
     # url = "https://api.spotify.com/v1/me/top/" + ttype + "?time_range=" + time + "&limit=50&access_token=" + user.token
-    print (url)
-    res = requests.get(url)
-    js = res.json()
-    print (js)
+    # print (url)
+    # res = requests.get(url)
+    # js = res.json()
+    # print (js)
     top = []
-    for item in js['items']:
-        dur = get_time(item['duration_ms'])
-        top.append((item['name'], item['artists'][0]['name'], item['album']['name'], dur))
 
-    return render(request, 'stats/top.html', {'tops':top})
+    sp = spotipy.Spotify(auth=user.token)
+    sp.trace = False
+    if ttype == 'tracks':
+        js = sp.current_user_top_tracks(time_range=time, limit=50)
+
+        for item in js['items']:
+            dur = get_time(item['duration_ms'])
+            top.append((item['name'], item['external_urls']['spotify'], 
+                            item['album']['artists'][0]['name'], item['album']['artists'][0]['id'],
+                            item['album']['name'], item['album']['id'], dur))
+
+        return render(request, 'stats/topTracks.html', {'tops':top, 'token':user.token})
+
+    else:
+        js = sp.current_user_top_artists(time_range=time, limit=50)
+        for item in js['items']:
+            if item['images']:
+                img = item['images'][-1]['url']
+            else:
+                img = ''
+            top.append((item['name'], item['id'], img, item['popularity']))
+
+        return render(request, 'stats/topArtists.html', {'tops':top, 'token':user.token})
 
 
 def following(request, username):
