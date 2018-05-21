@@ -12,6 +12,7 @@ urlpatterns = [
 
  	path('login', views.home, name='login'),
     path('', views.users, name='user'),
+    path('refresh', views.refresh, name='refresh'),
     path('<str:username>/', views.details, name='details'),
     path('<str:username>/top/', views.top, name='top'),
     path('<str:username>/following/', views.following, name='following'),

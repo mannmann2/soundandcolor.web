@@ -60,31 +60,38 @@ def home(request):
     url = "https://accounts.spotify.com/authorize/?client_id=" + cid + "&response_type=code&redirect_uri=" + uri + "&scope=" + scope
     return render(request, 'stats/home.html', {'url':url})
 
+def refresh(request):
+    f = User.objects.all()
+    users = []
+
+    for user in f:
+        data = {
+            "grant_type": "refresh_token",
+            "refresh_token": user.refresh_token,
+            "client_id": 'e6f5f053a682454ca4eb1781064d3881',
+            "client_secret": "e4294f2365ec45c0be87671b0da16596"
+        }
+        res = requests.post("https://accounts.spotify.com/api/token", data=data)
+        print (res)
+        js = res.json()
+        user.token = js['access_token']
+
+        # res = requests.get("https://api.spotify.com/v1/me?access_token=" + user.token)
+        # print (res)
+        # user.name = res.json()['display_name'] if res.json()['display_name'] else ''
+        # user.email = res.json()['email'] #if res.json()['email'] else ''
+        user.save()
+        users.append((user.username, user.email, user.username.split(':')[-1]))
+
+    return render(request, 'stats/users.html', {'users': users })
 
 def users(request):
     f = User.objects.all()
 
     users = []
     for user in f:
-        if user.token:
-            data = {
-                "grant_type": "refresh_token",
-                "refresh_token": user.refresh_token,
-                "client_id": 'e6f5f053a682454ca4eb1781064d3881',
-                "client_secret": "e4294f2365ec45c0be87671b0da16596"
-            }
-            res = requests.post("https://accounts.spotify.com/api/token", data=data)
-            print (res)
-            js = res.json()
-            user.token = js['access_token']
-
-            # res = requests.get("https://api.spotify.com/v1/me?access_token=" + user.token)
-            # print (res)
-            # user.name = res.json()['display_name'] if res.json()['display_name'] else ''
-            # user.email = res.json()['email'] #if res.json()['email'] else ''
-            user.save()
-
         users.append((user.username, user.email, user.username.split(':')[-1]))
+
     return render(request, 'stats/users.html', {'users': users })
 
 
