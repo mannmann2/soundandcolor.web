@@ -7,5 +7,5 @@
     <li><a href="{% url 'stats:details' user|index:'2' %}">{{ user|index:'1' }}</a>&emsp;-&emsp;{{ user|index:'2' }}</li>
 {% endfor %}
 </ol>
-
-<a href ="{% url 'stats:refresh' %}">Refresh Tokens</a>
+<br>
+<p>If you get an error click <a href ="{% url 'stats:refresh' %}">here</a> to refresh tokens.</p>

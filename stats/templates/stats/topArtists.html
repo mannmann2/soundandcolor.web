@@ -1,9 +1,15 @@
 {% load index %}
 
-<h3><a href = ".?type=tracks&time=short_term">Tracks</a>&emsp;&emsp;Artists</h3>
+<h3><a href = ".?type=tracks&time=short_term">Top Tracks</a>&emsp;&emsp;Top Artists</h3>
 
+<p>
+	<a href=".?type=artists&time=short_term">Last 4 weeks</a>&emsp;
+	<a href=".?type=artists&time=medium_term">Last 6 months</a>&emsp;
+	<a href=".?type=artists&time=long_term">All Time</a>
+</p>
+<br>
 <ol>
     {% for artist in tops %}
-        <li><a href="{% url 'stats:artist' artist|index:'1' %}?token={{ token }}"><img src={{ artist|index:'2' }}></img></a>&emsp;<font size='+2'>{{ artist|index:'0' }}</font>&emsp;&emsp;&emsp;<font size='+3'>{{ artist|index:'3' }}</font></li>
+        <li><img src="{{ artist|index:'2' }}"></img>&emsp;<font size='+2'><a href="{% url 'stats:artist' artist|index:'1' %}?token={{ token }}">{{ artist|index:'0' }}</a></font>&emsp;&emsp;&emsp;<font size='+3'>{{ artist|index:'3' }}</font></li>
     {% endfor %}
 </ol>

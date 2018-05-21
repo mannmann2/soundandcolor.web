@@ -4,6 +4,6 @@
 
 <ol>
 	{% for album in saved %}
-        <li><a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play="><img src={{ album|index:'5' }}></a>&emsp;<font size="+2">{{ album|index:'0' }}</font>&emsp;{{ album|index:'2' }}&ensp;-&ensp;<a href="{% url 'stats:artist' album|index:'4' %}?token={{ token }}">{{ album|index:'3' }}</li>
+        <li><img src="{{ album|index:'5' }}">&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a></font>&emsp;{{ album|index:'2' }}&ensp;-&ensp;<a href="{% url 'stats:artist' album|index:'4' %}?token={{ token }}">{{ album|index:'3' }}</a></li>
     {% endfor %}
 </ol>
