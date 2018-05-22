@@ -5,6 +5,8 @@ from django.urls import reverse
 from django.views import generic
 
 import spotipy
+from datetime import datetime 
+from dateutil.parser import parse
 
 from .models import User #Choice, Question,
 
@@ -52,6 +54,8 @@ def get_time(ms):
     dur = '%d:%02d'%(dur, sec)
     return dur
 
+def num_format(num):
+    return "{:,}".format(num)
 
 def home(request):
     cid = 'e6f5f053a682454ca4eb1781064d3881'
@@ -92,9 +96,10 @@ def users(request):
 
     users = []
     for user in f:
-        users.append((user.username, user.email, user.username.split(':')[-1]))
+        uid = user.username.split(':')[-1]
+        users.append((user.username, user.email, uid))
 
-    return render(request, 'stats/users.html', {'users': users })
+    return render(request, 'stats/users.html', {'users': users})
 
 
 def details(request, username):
@@ -119,6 +124,26 @@ def details(request, username):
         img = ''
 
     return render(request, 'stats/details.html', {'name':name, 'id':idd, 'email':email, 'foll':foll, 'img':img, 'username':js['id']})
+        
+
+def recent(request, username):
+    user=User.objects.get(username=username)
+
+    url = "https://api.spotify.com/v1/me/player/recently-played?limit=50&access_token=" + user.token
+    res = requests.get(url)
+    js = res.json()
+
+    recents = []
+
+    for item in js['items']:
+        dur = get_time(item['track']['duration_ms'])
+        recents.append((item['track']['name'], item['track']['external_urls']['spotify'], 
+                        item['track']['album']['artists'][0]['name'], item['track']['album']['artists'][0]['id'],
+                        item['track']['album']['name'], item['track']['album']['id'], dur, 
+                        parse(item['played_at'])))
+                        # (datetime.strptime(item['played_at'],'%Y-%m-%dT%H:%M:%S.%fZ').timestamp()+19800).strftime('%B %d, %-I:%M %p')))
+
+    return render(request, 'stats/recent.html', {'recent':recents, 'token':user.token})
 
 
 def top(request, username):
@@ -149,7 +174,7 @@ def top(request, username):
         js = sp.current_user_top_artists(time_range=time, limit=50)
         for item in js['items']:
             if item['images']:
-                img = item['images'][-1]['url']
+                img = item['images'][2]['url']
             else:
                 img = ''
             top.append((item['name'], item['id'], img, item['popularity']))
@@ -166,10 +191,10 @@ def following(request, username):
 
     while True:
         for item in js['items']:
-            if '/' in item['name']:
-                item['name'] = item['name'].replace('/', ' ')
+            # if '/' in item['name']:
+            #     item['name'] = item['name'].replace('/', ' ')
             if item['images']:
-                img = item['images'][-1]['url']
+                img = item['images'][2]['url']
             else:
                 img = ''
             foll.append((item['name'], item['id'], img, item['popularity']))
@@ -219,6 +244,32 @@ def genres(request, username):
     user = User.objects.get(username = username)
     pass
 
+def new(request):
+    # username = request.GET['user']
+    user = User.objects.get(username = 'mannmann2')
+    url = 'https://api.spotify.com/v1/browse/new-releases?limit=50&access_token=' + user.token
+    res = requests.get(url)
+    js = res.json()
+    albs = []
+
+    # while True:
+    for item in js['albums']['items']:
+        if item['images']:
+            img3 = item['images'][-1]['url']
+        else:
+            img3 = ''
+
+        albs.append((item['name'], item['id'], item['release_date'][:4], item['album_type'],
+                     item['artists'][0]['name'], item['artists'][0]['id'], img3))
+
+        # if js['albums']['next']:
+        #     res = requests.get(js['albums']['next']+"&access_token=" + token)
+        #     js = res.json()
+        # else:
+        #     break
+
+    return render(request, 'stats/new.html', {'new':albs, 'token':user.token})
+
 
 def artist(request, artist):
     token = request.GET['token']
@@ -229,7 +280,7 @@ def artist(request, artist):
     name = js1.pop('name')
     genres = ', '.join(js1.pop('genres'))
     pop = js1.pop('popularity')
-    followers = js1.pop('followers')['total']
+    followers = num_format(js1.pop('followers')['total'])
     img = js1.pop('images')[1]['url']
 
     url = "https://api.spotify.com/v1/artists/" + artist + "/top-tracks?country=US&access_token=" + token
@@ -240,14 +291,31 @@ def artist(request, artist):
         dur = get_time(track['duration_ms'])
         trks.append((track['name'], dur, track['external_urls']['spotify']))
 
-    albs = []
+    url = "https://api.spotify.com/v1/artists/" + artist + "/related-artists?access_token=" + token
+    res = requests.get(url)
+    js3 = res.json()
+    related = []
+    for item in js3['artists']:
+        # if '/' in item['name']:
+        #     item['name'] = item['name'].replace('/', ' ')
+        # if item['images']:
+        #     img2 = item['images'][-1]['url']
+        # else:
+        img2 = ''
+        related.append((item['name'], item['id'], img2, item['popularity']))
+
     url = 'https://api.spotify.com/v1/artists/' + artist + '/albums?limit=50&access_token=' + token
     res = requests.get(url)
     js = res.json()
+    albs = []
 
     while True:
         for item in js['items']:
-            albs.append((item['name'], item['id'], item['release_date'][:4], item['album_type'], item['images'][-1]['url']))
+            if item['images']:
+                img3 = item['images'][-1]['url']
+            else:
+                img3 = ''
+            albs.append((item['name'], item['id'], item['release_date'][:4], item['album_type'], img3))
 
         if js['next']:
             res = requests.get(js['next']+"&access_token=" + token)
@@ -255,7 +323,8 @@ def artist(request, artist):
         else:
             break
 
-    return render(request, 'stats/artist.html', {'img':img, 'name':name, 'pop':pop, 'foll':followers, 'genres':genres, 'tops':trks, 'albums':albs, 'token':token})
+    return render(request, 'stats/artist.html', {'img':img, 'name':name, 'pop':pop, 'foll':followers, 
+                'genres':genres, 'tops':trks, 'albums':albs, 'related': related, 'token':token})
 
 
 def album(request, album):
