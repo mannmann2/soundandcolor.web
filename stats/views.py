@@ -12,40 +12,10 @@ from .models import User #Choice, Question,
 
 import requests, json
 from dateutil.parser import parse
+from elasticsearch import Elasticsearch
 
-# class IndexView(generic.ListView):
-#     template_name = 'stats/index.html'
-#     context_object_name = 'latest_question_list'
-
-#     def get_queryset(self):
-#         """Return the last five published questions."""
-#         return Question.objects.order_by('-pub_date')[:5]
-
-# class DetailView(generic.DetailView):
-#     model = Question
-#     template_name = 'stats/detail.html'
-
-# class ResultsView(generic.DetailView):
-#     model = Question
-#     template_name = 'stats/results.html'
-
-# def vote(request, question_id):
-#     question = get_object_or_404(Question, pk=question_id)
-#     try:
-#         selected_choice = question.choice_set.get(pk=request.POST['choice'])
-#     except (KeyError, Choice.DoesNotExist):
-#         # Redisplay the question voting form.
-#         return render(request, 'stats/detail.html', {
-#             'question': question,
-#             'error_message': "You didn't select a choice.",
-#         })
-#     else:
-#         selected_choice.votes += 1
-#         selected_choice.save()
-#         # Always return an HttpResponseRedirect after successfully dealing
-#         # with POST data. This prevents data from being posted twice if a
-#         # user hits the Back button.
-#         return HttpResponseRedirect(reverse('stats:results', args=(question.id,)))
+esOn = True
+es = Elasticsearch(['localhost:9200'])
 
 def get_time(ms):
     dur = ms/1000
@@ -57,6 +27,7 @@ def get_time(ms):
 def num_format(num):
     return "{:,}".format(num)
 
+
 def home(request):
     cid = 'e6f5f053a682454ca4eb1781064d3881'
     cs = 'e4294f2365ec45c0be87671b0da16596'
@@ -65,6 +36,7 @@ def home(request):
 
     url = "https://accounts.spotify.com/authorize/?client_id=" + cid + "&response_type=code&redirect_uri=" + uri + "&scope=" + scope
     return render(request, 'stats/home.html', {'url':url})
+
 
 def refresh(request):
     f = User.objects.all()
@@ -91,6 +63,7 @@ def refresh(request):
 
     return render(request, 'stats/users.html', {'users': users })
 
+
 def users(request):
     f = User.objects.all()
 
@@ -100,6 +73,7 @@ def users(request):
         users.append((user.username, user.email, uid))
 
     return render(request, 'stats/users.html', {'users': users})
+
 
 
 def details(request, username):
@@ -124,7 +98,39 @@ def details(request, username):
         img = ''
 
     return render(request, 'stats/details.html', {'name':name, 'id':idd, 'email':email, 'foll':foll, 'img':img, 'username':js['id']})
-        
+
+
+
+def following(request, username): #
+    user=User.objects.get(username=username)
+    foll = []
+    url = "https://api.spotify.com/v1/me/following?type=artist&limit=50&access_token=" + user.token
+    res = requests.get(url)
+    js = res.json()['artists']
+
+    while True:
+        for item in js['items']:
+            if not es.exists('artist', doc_type='_doc', id=item['id']):
+                es.index('artist', doc_type='_doc', id= item['id'], body=item)
+
+            # if '/' in item['name']:
+            #     item['name'] = item['name'].replace('/', ' ')
+            if item['images']:
+                img = item['images'][-1]['url']
+            else:
+                img = ''
+            foll.append((item['name'], item['id'], img, item['popularity']))
+
+        if js['next']:
+            print ('.', end='')
+            res = requests.get(js['next']+"&access_token=" + user.token)
+            js = res.json()['artists']
+        else:
+            break
+
+    return render(request, 'stats/following.html', {'following':foll, 'token':user.token})
+
+
 
 def recent(request, username):
     user=User.objects.get(username=username)
@@ -144,6 +150,7 @@ def recent(request, username):
                         # (datetime.strptime(item['played_at'],'%Y-%m-%dT%H:%M:%S.%fZ').timestamp()+19800).strftime('%B %d, %-I:%M %p')))
 
     return render(request, 'stats/recent.html', {'recent':recents, 'token':user.token})
+
 
 
 def top(request, username):
@@ -182,31 +189,6 @@ def top(request, username):
         return render(request, 'stats/topArtists.html', {'tops':top, 'token':user.token})
 
 
-def following(request, username):
-    user=User.objects.get(username=username)
-    foll = []
-    url = "https://api.spotify.com/v1/me/following?type=artist&limit=50&access_token=" + user.token
-    res = requests.get(url)
-    js = res.json()['artists']
-
-    while True:
-        for item in js['items']:
-            # if '/' in item['name']:
-            #     item['name'] = item['name'].replace('/', ' ')
-            if item['images']:
-                img = item['images'][2]['url']
-            else:
-                img = ''
-            foll.append((item['name'], item['id'], img, item['popularity']))
-
-        if js['next']:
-            print ('.', end='')
-            res = requests.get(js['next']+"&access_token=" + user.token)
-            js = res.json()['artists']
-        else:
-            break
-
-    return render(request, 'stats/following.html', {'following':foll, 'token':user.token})
 
 def saved(request, username):
     user = User.objects.get(username = username)
@@ -240,9 +222,12 @@ def saved(request, username):
         return render(request, 'stats/savedAlbums.html', {'saved':saved, 'token':user.token})
 
 
+
 def genres(request, username):
     user = User.objects.get(username = username)
     pass
+
+
 
 def new(request):
     # username = request.GET['user']
@@ -259,7 +244,7 @@ def new(request):
         else:
             img3 = ''
 
-        albs.append((item['name'], item['id'], item['release_date'][:4], item['album_type'],
+        albs.append((item['name'], item['id'], parse(item['release_date']).strftime("%d %B"), item['album_type'],
                      item['artists'][0]['name'], item['artists'][0]['id'], img3))
 
         # if js['albums']['next']:
@@ -271,31 +256,54 @@ def new(request):
     return render(request, 'stats/new.html', {'new':albs, 'token':user.token})
 
 
+
 def artist(request, artist):
     token = request.GET['token']
 
-    url = 'https://api.spotify.com/v1/artists/' + artist + '?access_token=' + token
-    res = requests.get(url)
-    js1 = res.json()
+    if es.exists('artist', doc_type='_doc', id=artist):
+        js1 = es.get('artist', doc_type='_doc', id=artist)['_source']
+    else:
+        url = 'https://api.spotify.com/v1/artists/' + artist + '?access_token=' + token
+        res = requests.get(url)
+        js1 = res.json()
+        es.index('artist', doc_type='_doc', id=artist, body=js1)
+
     name = js1.pop('name')
     genres = ', '.join(js1.pop('genres'))
     pop = js1.pop('popularity')
     followers = num_format(js1.pop('followers')['total'])
     img = js1.pop('images')[1]['url']
 
-    url = "https://api.spotify.com/v1/artists/" + artist + "/top-tracks?country=US&access_token=" + token
-    res = requests.get(url)
-    js2 = res.json()
-    trks = []
-    for track in js2['tracks']:
-        dur = get_time(track['duration_ms'])
-        trks.append((track['name'], dur, track['external_urls']['spotify']))
 
-    url = "https://api.spotify.com/v1/artists/" + artist + "/related-artists?access_token=" + token
-    res = requests.get(url)
-    js3 = res.json()
+    if es.exists('top-tracks', doc_type='_doc', id=artist):
+        js2 = es.get('top-tracks', doc_type='_doc', id=artist)['_source']
+    else:
+        url = "https://api.spotify.com/v1/artists/" + artist + "/top-tracks?country=US&access_token=" + token #
+        res = requests.get(url)
+        js2 = res.json()
+        es.index('top-tracks', doc_type='_doc', id=artist, body=js2)
+
+    trks = []
+    for item in js2['tracks']:
+        if not es.exists('track', doc_type='_doc', id=item['id']):
+            es.index('track', doc_type='_doc', id=item['id'], body=item)
+        dur = get_time(item['duration_ms'])
+        trks.append((item['name'], dur, item['external_urls']['spotify']))
+
+
+    if es.exists('related-artists', doc_type='_doc', id=artist):
+        js3 = es.get('related-artists', doc_type='_doc', id=artist)['_source']
+    else:
+        url = "https://api.spotify.com/v1/artists/" + artist + "/related-artists?access_token=" + token
+        res = requests.get(url)
+        js3 = res.json()
+        es.index('related-artists', doc_type='_doc', id=artist, body=js3)
+
     related = []
     for item in js3['artists']:
+        if not es.exists('artist', doc_type='_doc', id=item['id']):
+            es.index('artist', doc_type='_doc', id=item['id'], body=item)
+
         # if '/' in item['name']:
         #     item['name'] = item['name'].replace('/', ' ')
         # if item['images']:
@@ -304,13 +312,20 @@ def artist(request, artist):
         img2 = ''
         related.append((item['name'], item['id'], img2, item['popularity']))
 
-    url = 'https://api.spotify.com/v1/artists/' + artist + '/albums?limit=50&access_token=' + token
-    res = requests.get(url)
-    js = res.json()
-    albs = []
+    if es.exists('artist-albums', doc_type='_doc', id=artist):
+        js = es.get('artist-albums', doc_type='_doc', id=artist)['_source']
+    else:
+        url = 'https://api.spotify.com/v1/artists/' + artist + '/albums?limit=50&access_token=' + token
+        res = requests.get(url)
+        js = res.json()
+        es.index('artist-albums', doc_type='_doc', id=artist, body=js)
 
+    albs = []
     while True:
         for item in js['items']:
+            if not es.exists('simple-album', doc_type='_doc', id=item['id']):
+                es.index('simple-album', doc_type='_doc', id=item['id'], body=item)
+
             if item['images']:
                 img3 = item['images'][-1]['url']
             else:
@@ -336,10 +351,14 @@ def album(request, album):
     #     # url = url.replace(' ', '')
     #     res = requests.put(url, data = uris)
     #     print (res.text)
-
-    url = "https://api.spotify.com/v1/albums/" + album + "?limit=50&access_token=" + token
-    res = requests.get(url)
-    js = res.json()
+    if es.exists('album', doc_type='_doc', id=album):
+        js = es.get('album', doc_type='_doc', id=album)['_source']
+    else:  
+        print ("LOLOLOLOLOL")
+        url = "https://api.spotify.com/v1/albums/" + album + "?limit=50&access_token=" + token
+        res = requests.get(url)
+        js = res.json()
+        es.index('album', doc_type='_doc', id=album, body=js)
 
     img = js['images'][1]['url']
     artist_name = js.pop('artists')[0]['name']
@@ -351,15 +370,22 @@ def album(request, album):
     label = js.pop('label')
     pop = js.pop('popularity')
 
-    trks = []
-    url = "https://api.spotify.com/v1/albums/" + album + "/tracks?limit=50&access_token=" + token
-    res = requests.get(url)
-    js1 = res.json()
+    if es.exists('album-tracks', doc_type='_doc', id=album):
+        js1 = es.get('album-tracks', doc_type='_doc', id=album)['_source']
+    else:
+        url = "https://api.spotify.com/v1/albums/" + album + "/tracks?limit=50&access_token=" + token
+        res = requests.get(url)
+        js1 = res.json()
+        es.index('album-tracks', doc_type='_doc', id=album, body=js1)
 
+    trks = []
     while True:
-        for track in js1['items']:
-            dur = get_time(track['duration_ms'])
-            trks.append((track['name'], dur, track['external_urls']['spotify']))
+        for item in js1['items']:
+            if not es.exists('simple-track', doc_type='_doc', id=item['id']):
+                es.index('simple-track', doc_type='_doc', id=item['id'], body=item)
+
+            dur = get_time(item['duration_ms'])
+            trks.append((item['name'], dur, item['external_urls']['spotify']))
 
         if js1['next']:
             res = requests.get(js1['next']+"&access_token=" + token)
@@ -369,4 +395,38 @@ def album(request, album):
 
     return render(request, 'stats/album.html', {'img':img, 'name':name, 'pop':pop, 'artist':artist_name, 'type':album_type, 'genres':genres, 'label':label, 'date':date, 'tracks':trks, 'token':token})
 
+
+# class IndexView(generic.ListView):
+#     template_name = 'stats/index.html'
+#     context_object_name = 'latest_question_list'
+
+#     def get_queryset(self):
+#         """Return the last five published questions."""
+#         return Question.objects.order_by('-pub_date')[:5]
+
+# class DetailView(generic.DetailView):
+#     model = Question
+#     template_name = 'stats/detail.html'
+
+# class ResultsView(generic.DetailView):
+#     model = Question
+#     template_name = 'stats/results.html'
+
+# def vote(request, question_id):
+#     question = get_object_or_404(Question, pk=question_id)
+#     try:
+#         selected_choice = question.choice_set.get(pk=request.POST['choice'])
+#     except (KeyError, Choice.DoesNotExist):
+#         # Redisplay the question voting form.
+#         return render(request, 'stats/detail.html', {
+#             'question': question,
+#             'error_message': "You didn't select a choice.",
+#         })
+#     else:
+#         selected_choice.votes += 1
+#         selected_choice.save()
+#         # Always return an HttpResponseRedirect after successfully dealing
+#         # with POST data. This prevents data from being posted twice if a
+#         # user hits the Back button.
+#         return HttpResponseRedirect(reverse('stats:results', args=(question.id,)))
 
