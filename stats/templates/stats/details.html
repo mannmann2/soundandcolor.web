@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+
+{% block tron %}
+
 {%if img %}
 	<img src={{ img }}>
 {% endif %}
@@ -16,3 +20,4 @@
 	<br>
     <!-- <a href="{% url 'stats:genres' username %}">Genres</a> -->
 </ul>
+{% endblock %}

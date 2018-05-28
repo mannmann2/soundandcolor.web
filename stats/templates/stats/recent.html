@@ -1,6 +1,11 @@
+{% extends "base.html" %}
 {% load index %}
+
+{% block tron %}
+
 <ol>
 	{% for rec in recent %}
         <p><li>{{ rec|index:'7' }}<br><a href="{{ rec|index:'1' }}" target="_blank">{{ rec|index:'0' }}</a>&emsp;//&emsp;<a href="{% url 'stats:artist' rec|index:'3' %}?token={{ token }}">{{ rec|index:'2' }}</a>&emsp;//&emsp;<a href="{% url 'stats:album' rec|index:'5' %}?token={{ token }}">{{ rec|index:'4' }}</a>&emsp;//&emsp;{{ rec|index:'6' }}</li></p>
     {% endfor %}
 </ol>
+{% endblock %}

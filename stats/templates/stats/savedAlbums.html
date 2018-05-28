@@ -1,4 +1,6 @@
+{% extends "base.html" %}
 {% load index %}
+{% block tron %}
 
 <h3><a href = .?type=tracks>Tracks</a>&emsp;&emsp;Albums</h3>
 
@@ -7,3 +9,4 @@
         <li><img src="{{ album|index:'5' }}">&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a></font>&emsp;{{ album|index:'2' }}&ensp;-&ensp;<a href="{% url 'stats:artist' album|index:'4' %}?token={{ token }}">{{ album|index:'3' }}</a></li>
     {% endfor %}
 </ol>
+{% endblock %}

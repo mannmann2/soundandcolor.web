@@ -1,18 +1,20 @@
+{% extends "base.html" %}
 {% load index %}
+{% block tron %}
 
 <!-- <table><tr><td width="50%"> -->
-<p><a href="https://open.spotify.com/track/3wrqiZJKMSpLBvgFJfFOp1" target="_blank"><h3>Sound & Color</h3></a><a href="{% url 'stats:new' %}"><h4>New Releases</h4></a></p>
 
-<a href=.><h4>Users:</h4></a>
 <ol>
 	{% for user in users %}
 	    <li><a href="{% url 'stats:details' user|index:'2' %}">{{ user|index:'1' }}</a>&emsp;-&emsp;{{ user|index:'2' }}</li>
 	{% endfor %}
 </ol>
 
-<p>If you get an error click <a href ="{% url 'stats:refresh' %}">here</a> to refresh tokens.</p>
+<p>Click <a href ="{% url 'stats:refresh' %}">here</a> to refresh all tokens.</p>
 
 <!-- </td>
 <td valign='top' align='center'>
 <h3></h3></td></tr>
 </table> -->
+
+{% endblock %}

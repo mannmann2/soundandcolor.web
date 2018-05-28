@@ -10,8 +10,8 @@ urlpatterns = [
  #    path('<int:pk>/results/', views.ResultsView.as_view(), name='results'),
  #    path('<int:question_id>/vote/', views.vote, name='vote'),
 
- 	path('login', views.home, name='login'),
-    path('', views.users, name='user'),
+ 	path('login', views.home, name='home'),
+    path('', views.users, name='users'),
     path('refresh', views.refresh_all, name='refresh'),
     path('<str:username>/', views.details, name='details'),
     path('<str:username>/recent/', views.recent, name='recent'),

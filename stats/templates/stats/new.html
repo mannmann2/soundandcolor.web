@@ -1,7 +1,10 @@
+{% extends "base.html" %}
 {% load index %}
+{% block tron %}
 
 <ol>
 	{% for album in new %}
         <li><img src="{{ album|index:'6' }}">&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a></font>&ensp;-&ensp;{{ album|index:'3' }}&ensp;-&ensp;<a href="{% url 'stats:artist' album|index:'5' %}?token={{ token }}">{{ album|index:'4' }}</a>&ensp;-&ensp;{{ album|index:'2' }}</li><br>
     {% endfor %}
 </ol>
+{% endblock %}

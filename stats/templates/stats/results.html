@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+{% block tron %}
+
 <h1>{{ question.question_text }}</h1>
 
 <ul>
@@ -7,3 +10,4 @@
 </ul>
 
 <a href="{% url 'stats:detail' question.id %}">Vote again?</a>
+{% endblock %}

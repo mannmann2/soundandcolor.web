@@ -1,5 +1,7 @@
+{% extends "base.html" %}
 {% load index %}
 
+{% block tron %}
 <table width="100%" cellpadding="10"><tr><td width="55%">
 	<img src={{ img }}>
 
@@ -30,3 +32,4 @@
         <li><img src={{ album|index:'4' }}>&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a></font>&emsp;{{ album|index:'2' }}&ensp;-&ensp;{{ album|index:'3' }}</li>
     {% endfor %}
 </ol>
+{% endblock %}
