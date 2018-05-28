@@ -12,7 +12,7 @@ urlpatterns = [
 
  	path('login', views.home, name='login'),
     path('', views.users, name='user'),
-    path('refresh', views.refresh, name='refresh'),
+    path('refresh', views.refresh_all, name='refresh'),
     path('<str:username>/', views.details, name='details'),
     path('<str:username>/recent/', views.recent, name='recent'),
     path('<str:username>/top/', views.top, name='top'),
