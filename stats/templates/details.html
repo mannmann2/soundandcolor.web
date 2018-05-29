@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{%block head %}{{ name }} | {{block.super}} {% endblock%}
+
 {% block tron %}
 
 {%if img %}

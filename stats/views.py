@@ -17,6 +17,10 @@ from elasticsearch import Elasticsearch
 esOn = True
 es = Elasticsearch(['localhost:9200'])
 
+
+def num_format(num):
+    return "{:,}".format(num)
+
 def get_time(ms):
     dur = ms/1000
     sec = dur%60
@@ -24,8 +28,6 @@ def get_time(ms):
     dur = '%d:%02d'%(dur, sec)
     return dur
 
-def num_format(num):
-    return "{:,}".format(num)
 
 def refresh(user):
     data = {
@@ -39,16 +41,6 @@ def refresh(user):
     print (res)
     user.token = res.json()['access_token']
     user.save()
-
-
-def home(request):
-    cid = 'e6f5f053a682454ca4eb1781064d3881'
-    cs = 'e4294f2365ec45c0be87671b0da16596'
-    uri = 'https://demo8.orkash.com/spotify'
-    scope = 'user-top-read%20user-follow-read%20user-library-read%20user-read-recently-played%20user-read-email%20streaming'
-
-    url = "https://accounts.spotify.com/authorize/?client_id=" + cid + "&response_type=code&redirect_uri=" + uri + "&scope=" + scope
-    return render(request, 'stats/home.html', {'url':url})
 
 
 def refresh_all(request):
@@ -65,19 +57,55 @@ def refresh_all(request):
         
         users.append((user.username, user.email, user.username.split(':')[-1]))
 
-    return render(request, 'stats/users.html', {'users': users })
+    return render(request, 'users.html', {'users': users })
+
+
+def home(request):
+    cid = 'e6f5f053a682454ca4eb1781064d3881'
+    cs = 'e4294f2365ec45c0be87671b0da16596'
+    uri = 'http://soundandcolor.life/auth'
+    scope = 'user-top-read%20user-follow-read%20user-library-read%20user-read-recently-played%20user-read-email%20streaming'
+
+    url = "https://accounts.spotify.com/authorize/?client_id=" + cid + "&response_type=code&redirect_uri=" + uri + "&scope=" + scope
+    return render(request, 'home.html', {'url':url})
+
+
+def auth(request):
+    code = request.GET['code']
+    data = {
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": "http://soundandcolor.life/auth",
+            "client_id": 'e6f5f053a682454ca4eb1781064d3881',
+            "client_secret" : "e4294f2365ec45c0be87671b0da16596"
+        }
+
+    res = requests.post("https://accounts.spotify.com/api/token", data = data)
+    js = res.json()
+
+    res = requests.get("https://api.spotify.com/v1/me?access_token=" + js['access_token'])
+    js1 = res.json()
+
+    x = User.objects.filter(username=js1['id'])
+    print (x)
+    if x:
+        msg = "Thanks, but no thanks."
+    else:
+        user = User(username=js1['id'], email=js1['email'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'])
+        user.save()
+        msg = "Thank you for the data. :P"
+
+    return render(request, 'auth.html', {"msg": msg})
 
 
 def users(request):
     f = User.objects.all()
-
     users = []
     for user in f:
         uid = user.username.split(':')[-1]
         users.append((user.username, user.email, uid))
 
-    return render(request, 'stats/users.html', {'users': users})
-
+    return render(request, 'users.html', {'users': users})
 
 
 def details(request, username):
@@ -107,11 +135,11 @@ def details(request, username):
     else:
         img = ''
 
-    return render(request, 'stats/details.html', {'name':name, 'id':idd, 'email':email, 'foll':foll, 'img':img, 'username':js['id']})
+    return render(request, 'details.html', 
+        {'name':name, 'id':idd, 'email':email, 'foll':foll, 'img':img, 'username':js['id']})
 
 
-
-def following(request, username): #
+def following(request, username):
     user=User.objects.get(username=username)
     foll = []
     url = "https://api.spotify.com/v1/me/following?type=artist&limit=50&access_token=" + user.token
@@ -138,8 +166,7 @@ def following(request, username): #
         else:
             break
 
-    return render(request, 'stats/following.html', {'following':foll, 'token':user.token})
-
+    return render(request, 'following.html', {'following':foll, 'token':user.token})
 
 
 def recent(request, username):
@@ -159,8 +186,7 @@ def recent(request, username):
                         parse(item['played_at'])))
                         # (datetime.strptime(item['played_at'],'%Y-%m-%dT%H:%M:%S.%fZ').timestamp()+19800).strftime('%B %d, %-I:%M %p')))
 
-    return render(request, 'stats/recent.html', {'recent':recents, 'token':user.token})
-
+    return render(request, 'recent.html', {'recent':recents, 'token':user.token})
 
 
 def top(request, username):
@@ -185,7 +211,7 @@ def top(request, username):
                             item['album']['artists'][0]['name'], item['album']['artists'][0]['id'],
                             item['album']['name'], item['album']['id'], dur))
 
-        return render(request, 'stats/topTracks.html', {'tops':top, 'token':user.token})
+        return render(request, 'topTracks.html', {'tops':top, 'token':user.token})
 
     else:
         js = sp.current_user_top_artists(time_range=time, limit=50)
@@ -196,8 +222,7 @@ def top(request, username):
                 img = ''
             top.append((item['name'], item['id'], img, item['popularity']))
 
-        return render(request, 'stats/topArtists.html', {'tops':top, 'token':user.token})
-
+        return render(request, 'topArtists.html', {'tops':top, 'token':user.token})
 
 
 def saved(request, username):
@@ -227,16 +252,14 @@ def saved(request, username):
             break
 
     if ttype=='tracks':
-        return render(request, 'stats/savedTracks.html', {'saved':saved, 'token':user.token})
+        return render(request, 'savedTracks.html', {'saved':saved, 'token':user.token})
     else:
-        return render(request, 'stats/savedAlbums.html', {'saved':saved, 'token':user.token})
-
+        return render(request, 'savedAlbums.html', {'saved':saved, 'token':user.token})
 
 
 def genres(request, username):
     user = User.objects.get(username = username)
     pass
-
 
 
 def new(request):
@@ -263,8 +286,7 @@ def new(request):
         # else:
         #     break
 
-    return render(request, 'stats/new.html', {'new':albs, 'token':user.token})
-
+    return render(request, 'new.html', {'new':albs, 'token':user.token})
 
 
 def artist(request, artist):
@@ -348,8 +370,9 @@ def artist(request, artist):
         else:
             break
 
-    return render(request, 'stats/artist.html', {'img':img, 'name':name, 'pop':pop, 'foll':followers, 
-                'genres':genres, 'tops':trks, 'albums':albs, 'related': related, 'token':token})
+    return render(request, 'artist.html', 
+        {'img':img, 'name':name, 'pop':pop, 'foll':followers, 'genres':genres, 
+        'tops':trks, 'albums':albs, 'related': related, 'token':token})
 
 
 def album(request, album):
@@ -364,7 +387,6 @@ def album(request, album):
     if es.exists('album', doc_type='_doc', id=album):
         js = es.get('album', doc_type='_doc', id=album)['_source']
     else:  
-        print ("LOLOLOLOLOL")
         url = "https://api.spotify.com/v1/albums/" + album + "?limit=50&access_token=" + token
         res = requests.get(url)
         js = res.json()
@@ -403,7 +425,9 @@ def album(request, album):
         else:
             break    
 
-    return render(request, 'stats/album.html', {'img':img, 'name':name, 'pop':pop, 'artist':artist_name, 'type':album_type, 'genres':genres, 'label':label, 'date':date, 'tracks':trks, 'token':token})
+    return render(request, 'album.html', 
+        {'img':img, 'name':name, 'pop':pop, 'artist':artist_name, 'type':album_type, 
+        'genres':genres, 'label':label, 'date':date, 'tracks':trks, 'token':token})
 
 
 # class IndexView(generic.ListView):

@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% load index %}
+
+{%block head %}Top Artists | {{block.super}} {% endblock%}
+
 {% block tron %}
 
 <h3><a href = ".?type=tracks&time=short_term">Top Tracks</a>&emsp;&emsp;Top Artists</h3>

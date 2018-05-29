@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load index %}
 
+{%block head %}{{ name }} | {{block.super}} {% endblock%}
+
 {% block tron %}
 <table width="100%" cellpadding="10"><tr><td width="55%">
 	<img src={{ img }}>
@@ -18,7 +20,7 @@
 	</ol>
 
 </td><td valign="top">
-	<h3>&emsp;&emsp;Related</h3>
+	<h4>Related Artists</h4>
 	{% for artist in related %}
     	<img src={{ artist|index:'2' }}></img>&emsp;
 		<a href="{% url 'stats:artist' artist|index:'1' %}?token={{ token }}">{{ artist|index:'0' }}</a>
