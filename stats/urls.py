@@ -13,6 +13,7 @@ urlpatterns = [
     path('login', views.home, name='home'),
  	path('auth', views.auth, name='auth'),
     path('', views.users, name='users'),
+    path('search', views.search, name='search'),
     path('refresh', views.refresh_all, name='refresh'),
     path('<str:username>/', views.details, name='details'),
     path('<str:username>/recent/', views.recent, name='recent'),
