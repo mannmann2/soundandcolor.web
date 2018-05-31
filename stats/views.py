@@ -1,17 +1,19 @@
-# from datetime import datetime
 from django.shortcuts import render #, get_object_or_404
+from django.contrib.auth import authenticate
+from .forms import LoginForm
+from django.contrib.auth.forms import UserCreationForm
 
 # from django.http import Http404
 # from django.http import HttpResponse, HttpResponseRedirect
 # from django.urls import reverse
 # from django.views import generic
 
-# import json
 import spotipy
 import requests
 from elasticsearch import Elasticsearch
 
 from dateutil.parser import parse
+from django.contrib.auth import logout, login
 
 from .models import User #Choice, Question,
 # from .forms import SearchForm
@@ -19,6 +21,41 @@ from .models import User #Choice, Question,
 esOn = True
 es = Elasticsearch(['localhost:9200'])
 
+def login_page(request):
+    form=LoginForm(request.POST)
+    return render(request, 'auth/login.html', {'form':form})        
+
+def login_view(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(username=username, password=password)
+    
+    if user is not None:
+        login(request, user)
+        users = get_friends()
+
+    return render(request, 'users.html', {'users':users})    
+
+def logout_view(request):
+    logout(request)
+    return render(request, 'auth/logout.html', {})
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            if user is not None:
+                login(request, user)
+                users = get_friends()
+
+            return render(request, 'users.html', {'users':users})
+    else:
+        form = UserCreationForm()
+    return render(request, 'auth/signup.html', {'form': form})
 
 def num_format(num):
     return "{:,}".format(num)
@@ -58,6 +95,19 @@ def refresh_all(request):
 
     return render(request, 'users.html', {'users': users})
 
+def get_friends():
+    users = []
+    f = User.objects.all()
+    for user in f:
+        uid = user.username.split(':')[-1]
+        users.append((user.username, user.email, uid))
+    return users
+    
+def users(request):
+    users = get_friends()
+    return render(request, 'users.html', {'users': users})
+
+
 def home(request):
     cid = 'e6f5f053a682454ca4eb1781064d3881'
     # cs = 'e4294f2365ec45c0be87671b0da16596'
@@ -94,17 +144,7 @@ def auth(request):
     return render(request, 'auth.html', {"msg": msg})
 
 
-def users(request):
-    f = User.objects.all()
-    users = []
-    for user in f:
-        uid = user.username.split(':')[-1]
-        users.append((user.username, user.email, uid))
-
-    return render(request, 'users.html', {'users': users})
-
 def search(request):
-
     # form = SearchForm(request.POST or None)
     user = User.objects.get(username='mannmann2')
     query = request.GET['query']
@@ -170,6 +210,7 @@ def new(request):
         #     break
 
     return render(request, 'new.html', {'new':albs, 'token':user.token})
+
 
 def details(request, username):
     user = User.objects.get(username=username)
@@ -322,11 +363,6 @@ def saved(request, username):
         return render(request, 'savedAlbums.html', {'saved':saved, 'token':user.token})
 
 
-def genres(request, username):
-    user = User.objects.get(username=username)
-    pass
-
-
 def artist(request, artist):
     token = request.GET['token']
 
@@ -465,6 +501,11 @@ def album(request, album):
     context = {'img':img, 'name':name, 'pop':pop, 'artist':artist_name, 'type':album_type,
                'genres':genres, 'label':label, 'date':date, 'tracks':trks, 'token':token}
     return render(request, 'album.html', context)
+
+
+def genres(request, username):
+    user = User.objects.get(username=username)
+    pass
 
 
 # class IndexView(generic.ListView):
