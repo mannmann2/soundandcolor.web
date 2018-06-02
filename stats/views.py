@@ -77,8 +77,8 @@ def auth(request):
     data = {
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": "http://localhost:8000/auth",
-        # "redirect_uri": "http://soundandcolor.life/auth",
+        # "redirect_uri": "http://localhost:8000/auth",
+        "redirect_uri": "http://soundandcolor.life/auth",
         "client_id": 'e6f5f053a682454ca4eb1781064d3881',
         "client_secret" : "e4294f2365ec45c0be87671b0da16596"
         }
