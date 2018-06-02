@@ -8,6 +8,7 @@
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
+    <p><a href = {{ url }}>Link Spotify</a></p>
     <button type="submit">Sign up</button>
   </form>
 {% endblock %}

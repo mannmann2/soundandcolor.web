@@ -2,12 +2,14 @@ from django.shortcuts import render #, get_object_or_404
 from django.contrib.auth import authenticate
 from .forms import LoginForm
 from django.contrib.auth.forms import UserCreationForm
+from django.conf import settings
+
 
 # from django.http import Http404
 # from django.http import HttpResponse, HttpResponseRedirect
 # from django.urls import reverse
 # from django.views import generic
-
+import json
 import spotipy
 import requests
 from elasticsearch import Elasticsearch
@@ -15,47 +17,14 @@ from elasticsearch import Elasticsearch
 from dateutil.parser import parse
 from django.contrib.auth import logout, login
 
-from .models import User #Choice, Question,
+from .models import CustomUser as User #User, Choice, Question,
 # from .forms import SearchForm
+
+# scope = 'user-top-read%20user-follow-read%20user-library-read%20user-read-recently-played%20user-read-email%20streaming'
+# url = "https://accounts.spotify.com/authorize/?client_id=" + cid + "&response_type=code&redirect_uri=" + uri + "&scope=" + scope
 
 esOn = True
 es = Elasticsearch(['localhost:9200'])
-
-def login_page(request):
-    form=LoginForm(request.POST)
-    return render(request, 'auth/login.html', {'form':form})        
-
-def login_view(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(username=username, password=password)
-    
-    if user is not None:
-        login(request, user)
-        users = get_friends()
-
-    return render(request, 'users.html', {'users':users})    
-
-def logout_view(request):
-    logout(request)
-    return render(request, 'auth/logout.html', {})
-
-def signup(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            if user is not None:
-                login(request, user)
-                users = get_friends()
-
-            return render(request, 'users.html', {'users':users})
-    else:
-        form = UserCreationForm()
-    return render(request, 'auth/signup.html', {'form': form})
 
 def num_format(num):
     return "{:,}".format(num)
@@ -66,6 +35,70 @@ def get_time(ms):
     dur = dur/60
     dur = '%d:%02d'%(dur, sec)
     return dur
+
+# def login_page(request):
+#     form=LoginForm(request.POST)
+#     return render(request, 'auth/login.html', {'form':form})        
+
+# def login_view(request):
+    # username = request.POST['username']
+    # password = request.POST['password']
+    # user = authenticate(username=username, password=password)
+    
+    # if user is not None:
+    #     login(request, user)
+    #     users = get_friends()
+
+    # return render(request, 'users.html', {'users':users})    
+
+def logout_view(request):
+    logout(request)
+    return render(request, 'auth/logout.html', {})
+
+# def signup(request):
+#     if request.method == 'POST':
+#         form = UserCreationForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             username = form.cleaned_data.get('username')
+#             raw_password = form.cleaned_data.get('password1')
+#             user = authenticate(username=username, password=raw_password)
+#             if user is not None:
+#                 login(request, user)
+#                 users = get_friends()
+
+#             return render(request, 'users.html', {'users':users})
+#     else:
+#         form = UserCreationForm()
+#     return render(request, 'auth/signup.html', {'form': form})
+
+def auth(request):
+    code = request.GET['code']
+    data = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": "http://localhost:8000/auth",
+        # "redirect_uri": "http://soundandcolor.life/auth",
+        "client_id": 'e6f5f053a682454ca4eb1781064d3881',
+        "client_secret" : "e4294f2365ec45c0be87671b0da16596"
+        }
+
+    res = requests.post("https://accounts.spotify.com/api/token", data=data)
+    js = res.json()
+
+    res = requests.get("https://api.spotify.com/v1/me?access_token=" + js['access_token'])
+    js1 = res.json()
+    print(js1)
+    user = User.objects.filter(username=js1['id'])
+    if not user:
+        user = User(username=js1['id'], email=js1['email'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'])
+        user.set_password("password")
+        user.save()
+        # msg = "Thank you for the data. :P"
+    user = authenticate(username=js1['id'], password="password")
+    login(request, user)
+    
+    return render(request, 'users.html', {"users": get_friends()})
 
 def refresh(user):
     data = {
@@ -106,42 +139,6 @@ def get_friends():
 def users(request):
     users = get_friends()
     return render(request, 'users.html', {'users': users})
-
-
-def home(request):
-    cid = 'e6f5f053a682454ca4eb1781064d3881'
-    # cs = 'e4294f2365ec45c0be87671b0da16596'
-    uri = 'http://soundandcolor.life/auth'
-    scope = 'user-top-read%20user-follow-read%20user-library-read%20user-read-recently-played%20user-read-email%20streaming'
-
-    url = "https://accounts.spotify.com/authorize/?client_id=" + cid + "&response_type=code&redirect_uri=" + uri + "&scope=" + scope
-    return render(request, 'home.html', {'url':url})
-
-def auth(request):
-    code = request.GET['code']
-    data = {
-        "grant_type": "authorization_code",
-        "code": code,
-        "redirect_uri": "http://soundandcolor.life/auth",
-        "client_id": 'e6f5f053a682454ca4eb1781064d3881',
-        "client_secret" : "e4294f2365ec45c0be87671b0da16596"
-        }
-
-    res = requests.post("https://accounts.spotify.com/api/token", data=data)
-    js = res.json()
-
-    res = requests.get("https://api.spotify.com/v1/me?access_token=" + js['access_token'])
-    js1 = res.json()
-
-    x = User.objects.filter(username=js1['id'])
-    if x:
-        msg = "Thanks, but no thanks."
-    else:
-        user = User(username=js1['id'], email=js1['email'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'])
-        user.save()
-        msg = "Thank you for the data. :P"
-
-    return render(request, 'auth.html', {"msg": msg})
 
 
 def search(request):
