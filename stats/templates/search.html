@@ -23,14 +23,14 @@
             <tr valign="top">
             <td width="30%"><h3>Albums</h3><ol>
                 {% for album in albums %}
-                    <li><img src={{ album|index:'4' }}>&emsp;<a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a>
+                    <li><img width="64" height="64" src={{ album|index:'4' }}>&emsp;<a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a>
                                 <!-- &emsp;{{ album|index:'2' }}&ensp;-&ensp;{{ album|index:'3' }} --> 
                     </li>
                 {% endfor %}
             </ol></td>
             <td width="40%"><h3>Artists</h3><ol>
                 {% for artist in artists %}
-                    <li><img src="{{ artist|index:'2' }}"></img>&emsp;<a href="{% url 'stats:artist' artist|index:'1' %}?token={{ token }}">{{ artist|index:'0' }}</a>
+                    <li><img width="64" height="64" src="{{ artist|index:'2' }}"></img>&emsp;<a href="{% url 'stats:artist' artist|index:'1' %}?token={{ token }}">{{ artist|index:'0' }}</a>
                         <!-- &emsp;&emsp;&emsp;<font size='+3'>{{ artist|index:'3' }}</font> -->
                     </li>
                 {% endfor %}
