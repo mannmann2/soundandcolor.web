@@ -1,21 +1,21 @@
 {% load staticfiles %}
 
-<nav class="navbar fixed-top navbar-expand-lg navbar-dark" style="background-color: #191414;">
+<nav class="navbar fixed-top navbar-expand-lg navbar-light" style="background-color: #FFFFFF"> 
+  <!-- #191414; -->
+  <a class="navbar-brand" href="/">
+    <img src="{% static 'logo.png' %}" width="30" height="30" class="d-inline-block align-top" alt=".">
+  </a>
   <a class="navbar-brand" href="https://open.spotify.com/track/3wrqiZJKMSpLBvgFJfFOp1" target="_blank">
-        <img src="{% static 'logo.png' %}" width="30" height="30" class="d-inline-block align-top" alt=".">
-        Sound & Color</a>
+    Sound & Color</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'stats:users' %}">Friends<span class="sr-only">(current)</span></a>
-      </li>
       <li class="nav-item ">
-        <a class="nav-link" href="{% url 'stats:new' %}">New Releases</a>
-      </li>
+          <a class="nav-link" href="{% url 'stats:new' %}">New Releases</a>
+        </li>
 <!--       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Dropdown
@@ -36,6 +36,9 @@
     <ul class="navbar-nav mr-2">
         {% if request.user.is_authenticated %}
         <li class="nav-item">
+            <a class="nav-link" href="{% url 'stats:users' %}">Friends</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="{% url 'stats:details' request.user %}">{{ request.user }}<span class="sr-only">(current)</span></a>
         </li>      
         <li><a class="nav-link" href="{% url 'stats:logout' %}">Logout</a></li>
@@ -43,7 +46,8 @@
         {% else %}
 
         <li class="nav-item">
-          <a class="nav-link" href="https://accounts.spotify.com/authorize/?client_id=e6f5f053a682454ca4eb1781064d3881&response_type=code&redirect_uri=http://soundandcolor.life/auth&scope=user-top-read%20user-follow-read%20user-library-read%20user-read-recently-played%20user-read-email%20streaming">
+          <a class="nav-link" 
+          href="https://accounts.spotify.com/authorize/?client_id=e6f5f053a682454ca4eb1781064d3881&response_type=code&redirect_uri=http://localhost:8000/auth&scope=user-top-read%20user-follow-read%20user-library-read%20user-read-recently-played%20user-read-email%20streaming">
                       Log In<span class="sr-only">(current)</span></a>
         </li>
         <!-- <li class="nav-item">

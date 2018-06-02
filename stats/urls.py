@@ -8,17 +8,17 @@ from . import views
 app_name = 'stats'
 urlpatterns = [
 
-  # path('register', views.home, name='home'),
+    path('', views.home, name='home'),
     path('auth', views.auth, name='auth'),
-    path('', views.users, name='users'),
-    path('search', views.search, name='search'),
     path('refresh', views.refresh_all, name='refresh'),
-    path(r'^<str:username>$', views.details, name='details'),
+    path('friends', views.users, name='users'),
+    path('new', views.new, name='new'),
+    path('search', views.search, name='search'),
+    path(r'<str:username>$', views.details, name='details'),
     path('<str:username>/recent/', views.recent, name='recent'),
     path('<str:username>/top/', views.top, name='top'),
-    path('<str:username>/following/', views.following, name='following'),
     path('<str:username>/saved/', views.saved, name='saved'),
-    path('new', views.new, name='new'),
+    path('<str:username>/following/', views.following, name='following'),
     path('<str:username>/genres/', views.genres, name='genres'),
     path('artist/<str:artist>/', views.artist, name='artist'),
     path('album/<str:album>/', views.album, name='album'),

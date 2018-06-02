@@ -1,17 +1,18 @@
 {% extends "base.html" %}
 {% load index %}
 
-{%block head %}New Releases | {{block.super}} {% endblock %}
+{%block title %}New Releases | {{block.super}} {% endblock %}
+{% block head %}New Releases{% endblock %}
 
-{% block tron %}
-
+{% block content %}
+<br>
 <ol>
 	{% for album in new %}
-        <li>{{ album|index:'2' }}<br>
-        <img width="64" height="64" src="{{ album|index:'6' }}">&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a></font>
+        <p><li>{{ album|index:'2' }}<br>
+        <img width="128" height="128" src="{{ album|index:'6' }}">&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a></font>
         &ensp;-&ensp;{{ album|index:'3' }}&ensp;-&ensp;
         <a href="{% url 'stats:artist' album|index:'5' %}?token={{ token }}">{{ album|index:'4' }}</a>
-        </li><br>
+        </li></p>
     {% endfor %}
 </ol>
 {% endblock %}

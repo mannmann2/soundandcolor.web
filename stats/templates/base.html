@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -10,16 +12,17 @@
     <link rel="icon" href="../../favicon.ico"> -->
 
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <title>{%block head %}S&C{% endblock%}</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'logo.png' %}"/>
+    <title>{%block title %}S&C{% endblock%}</title>
   </head>
   <body>
     {% include 'navbar.html' %}
-
+    <br><br><br>
     <div class="container">
-      <!-- {% block content %} {% endblock %}  -->
-      <br><br><br>
-      {% block tron %} {% endblock %}
-      {% include 'js.html' %}
+        <h2>{%block head %}{% endblock%}</h2>
+        {% block content %} {% endblock %} 
+      
+        {% include 'js.html' %}
   
     </div>
   </body>

@@ -1,17 +1,18 @@
 {% extends "base.html" %}
 {% load index %}
 
-{%block head %}{{ name }} | {{block.super}} {% endblock %}
+{%block title %}{{ name }} | {{block.super}} {% endblock %}
 
-{% block tron %}
-<img src={{ img }}>
-<p><font size="+3"><b>{{ name }}</b></font>&emsp;&emsp;&emsp;<font size="+4"><b>{{ pop }}</b></font><br><i>
+{% block content %}
+<table><tr><td style="padding-right: 20px;">
+<img src="{{ img }}">
+<p><b style="font-size:320%;">{{ name }}</b>&emsp;&emsp;&emsp;<b style="font-size:300%;">{{ pop }}</b>
+<br>By <a href="{% url 'stats:artist' id %}?token={{ token }}"><b>{{ artist }}</b></a><br>
 <!-- {{ type }}<br> -->
-{{ date }}</i><br>
-{{ genres }}<p>
+<i>{{ date }}</i><br>
+{{ genres }}</p>
 
-<p><b>{{ artist }}</b><br>
-{{ label }}</p>
+<p>{{ label }}</p>
 
 <ul>
 	{% for key, value in album.items %}
@@ -21,7 +22,12 @@
 <h3>Tracks</h3>
 <ol>
 	{% for track in tracks %}
-        <li><a href={{ track|index:'2' }} target="_blank">{{ track|index:'0' }}</a>&emsp;{{ track|index:'1' }}</li>
+        <li><a href="{{ track|index:'2' }}" target="_blank">{{ track|index:'0' }}</a>&emsp;{{ track|index:'1' }}</li>
     {% endfor %}
 </ol>
+</td>
+<td valign="top">
+    <iframe src="https://open.spotify.com/embed?uri={{ uri }}&theme=white" width="300" height="380" 
+    frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+</td></tr></table>
 {% endblock %}

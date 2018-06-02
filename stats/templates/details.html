@@ -1,25 +1,34 @@
 {% extends "base.html" %}
+{% load index %}
 
-{%block head %}{{ name }} | {{block.super}} {% endblock %}
-
-{% block tron %}
-
+{%block title %}{{ name }} | {{block.super}}{% endblock %}
+{%block head %}{% endblock%}
+{% block content %}
+<table width="100%"><tr></tr><td width="65%">
 {%if img %}
-	<img src={{ img }}>
+	<img src="{{ img }}">
 {% endif %}
-<p><font size="+3"><b>{{ name }}</b></font>&emsp;&emsp;&emsp;<i><font size="+1">{{ foll }} Followers</font><br>
+<p><b style="font-size:500%;">{{ name }}</b><br>
 {% if id %}
 	{{ id }}<br>
 {% endif %}
-{{ email }}</i></p>
+<i>{{ email }}&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;{{ foll }} Followers</i></p>
 
-<ul>
+<div style="font-size: 180%">
 	<a href="{% url 'stats:recent' username %}">Recently Played</a><br>
 	<a href="{% url 'stats:top' username %}?type=tracks&time=short_term">Top</a><br>
 	<a href="{% url 'stats:following' username %}">Following</a><br>
     <a href="{% url 'stats:saved' username %}?type=tracks">Saved Tracks</a><br>
-    <a href="{% url 'stats:saved' username %}?type=albums">Saved Albums</a><br><br>
-	<br>
+    <a href="{% url 'stats:saved' username %}?type=albums">Saved Albums</a><br>
     <!-- <a href="{% url 'stats:genres' username %}">Genres</a> -->
-</ul>
+</div></td>
+<td valign="top">
+	<b style="font-size:240%;">Friends</b><br><p>
+	<ol style="font-size: 120%">
+    {% for user in users %}
+        <li><a href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}</a></li>
+    {% endfor %}
+</ol>	</p>
+</td></tr>
+</table>
 {% endblock %}

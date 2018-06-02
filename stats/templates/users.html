@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 {% load index %}
 
-{%block head %}Friends | {{block.super}} {% endblock %}
-
-{% block tron %}
-
+{%block title %}Friends | {{block.super}} {% endblock %}
+{% block head %}Friends{% endblock %}
+{% block content %}
+<br>
 <!-- <table><tr><td width="50%"> -->
 
 <ol>
 	{% for user in users %}
-	    <li><a href="{% url 'stats:details' user|index:'2' %}">{{ user|index:'1' }}</a>&emsp;-&emsp;{{ user|index:'2' }}</li>
+		<li><a href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}</a>&emsp;-&emsp;
+			{{ user|index:'1' }}</li>
 	{% endfor %}
 </ol>
 

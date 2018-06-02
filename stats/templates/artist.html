@@ -1,15 +1,18 @@
 {% extends "base.html" %}
 {% load index %}
 
-{%block head %}{{ name }} | {{block.super}} {% endblock %}
+{%block title %}{{ name }} | {{block.super}} {% endblock %}
 
-{% block tron %}
-<table width="100%" cellpadding="10"><tr><td width="55%">
-	<img src={{ img }}>
+{% block content %}
+<table width="100%"><tr><td style="padding-right: 20px;" width="60%">
+	<img src="{{ img }}">
 
-	<p><font size="+3"><b>{{ name }}</b></font>&emsp;&emsp;&emsp;<font size="+5"><b>{{ pop }}</b></font><br>
-	<i>{{ foll }}</i></p>
-
+	<p><b style="font-size:320%;">{{ name }}</b>&emsp;&emsp;&emsp;<b style="font-size:300%;">{{ pop }}</b><br>
+		<iframe src="https://open.spotify.com/follow/1/?uri={{ uri }}&size=detail&theme=light" 
+		width="300" height="56" scrolling="no" frameborder="0" style="border:none; overflow:hidden;" 
+		allowtransparency="true"></iframe>	
+	</p>
+	
 	<p><b><i>{{ genres }}</i></b></p>
 
 	<h3>Top Tracks</h3>
@@ -19,19 +22,23 @@
 	    {% endfor %}
 	</ol>
 
-</td><td valign="top">
-	<h4>Related Artists</h4>
-	{% for artist in related %}
-    	<img src={{ artist|index:'2' }}></img>&emsp;
-		<a href="{% url 'stats:artist' artist|index:'1' %}?token={{ token }}">{{ artist|index:'0' }}</a>
-		&emsp;&emsp;&emsp;<font size='+1'>{{ artist|index:'3' }}</font><br>
-	{% endfor %}
-</td></tr></table>
-
 <h3>Albums</h3>
 <ol>
 	{% for album in albums %}
         <li><img width="64" height="64" src={{ album|index:'4' }}>&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a></font>&emsp;{{ album|index:'2' }}&ensp;-&ensp;{{ album|index:'3' }}</li>
     {% endfor %}
 </ol>
+
+
+</td><td valign="top">
+		<iframe src="https://open.spotify.com/embed?uri={{ uri }}&theme=white" width="300" height="380" 
+			frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+		<h4><br>Related Artists</h4>
+		{% for artist in related %}
+			<img src={{ artist|index:'2' }}></img>&emsp;
+			<a href="{% url 'stats:artist' artist|index:'1' %}?token={{ token }}">{{ artist|index:'0' }}</a>
+			&emsp;&emsp;&emsp;<font size='+1'>{{ artist|index:'3' }}</font><br>
+		{% endfor %}
+	</td></tr></table>
+
 {% endblock %}

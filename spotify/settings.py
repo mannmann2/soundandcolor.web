@@ -25,7 +25,7 @@ SECRET_KEY = 'twaks-&fh^c%3z#qm7*pjfj-hln_=53^x#e$def8n$bswu8xy1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'soundandcolor.life', '59.180.139.21']
+ALLOWED_HOSTS = ['localhost', 'soundandcolor.life', 'www.soundandcolor.life']
 
 # SECURE_SSL_REDIRECT = True
 # SESSION_COOKIE_SECURE = True
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # THIRD PARTY APPS
     'crispy_forms',
+    
     # 'stats'
 ]
 

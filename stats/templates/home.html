@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load index %}
+
+{%block title %}{{block.super}}{% endblock %}
+{%block head %}Users{% endblock %}
+
+{% block content %}
+<br>
+<ol>
+    {% for user in users %}
+        <li><a href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}</a>&emsp;-&emsp;
+            {{ user|index:'1' }}</li>
+    {% endfor %}
+</ol>
+{% endblock %}

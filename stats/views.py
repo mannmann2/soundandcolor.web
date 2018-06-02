@@ -4,12 +4,11 @@ from .forms import LoginForm
 from django.contrib.auth.forms import UserCreationForm
 from django.conf import settings
 
-
 # from django.http import Http404
-# from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 # from django.urls import reverse
 # from django.views import generic
-import json
+# import json
 import spotipy
 import requests
 from elasticsearch import Elasticsearch
@@ -17,8 +16,7 @@ from elasticsearch import Elasticsearch
 from dateutil.parser import parse
 from django.contrib.auth import logout, login
 
-from .models import CustomUser as User #User, Choice, Question,
-# from .forms import SearchForm
+from .models import CustomUser as User
 
 # scope = 'user-top-read%20user-follow-read%20user-library-read%20user-read-recently-played%20user-read-email%20streaming'
 # url = "https://accounts.spotify.com/authorize/?client_id=" + cid + "&response_type=code&redirect_uri=" + uri + "&scope=" + scope
@@ -36,10 +34,24 @@ def get_time(ms):
     dur = '%d:%02d'%(dur, sec)
     return dur
 
-# def login_page(request):
-#     form=LoginForm(request.POST)
-#     return render(request, 'auth/login.html', {'form':form})        
+# def signup(request):
+    # if request.method == 'POST':
+    #     form = UserCreationForm(request.POST)
+    #     if form.is_valid():
+    #         form.save()
+    #         username = form.cleaned_data.get('username')
+    #         raw_password = form.cleaned_data.get('password1')
+    #         user = authenticate(username=username, password=raw_password)
+    #         if user is not None:
+    #             login(request, user)
 
+            # return HttpResponseRedirect('/friends')
+    # else:
+    #     form = UserCreationForm()
+    # return render(request, 'auth/signup.html', {'form': form})
+# def login_page(request):
+    # form=LoginForm(request.POST)
+    # return render(request, 'auth/login.html', {'form':form})
 # def login_view(request):
     # username = request.POST['username']
     # password = request.POST['password']
@@ -47,38 +59,19 @@ def get_time(ms):
     
     # if user is not None:
     #     login(request, user)
-    #     users = get_friends()
-
-    # return render(request, 'users.html', {'users':users})    
+    # return HttpResponseRedirect('/') 
 
 def logout_view(request):
     logout(request)
-    return render(request, 'auth/logout.html', {})
-
-# def signup(request):
-#     if request.method == 'POST':
-#         form = UserCreationForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             username = form.cleaned_data.get('username')
-#             raw_password = form.cleaned_data.get('password1')
-#             user = authenticate(username=username, password=raw_password)
-#             if user is not None:
-#                 login(request, user)
-#                 users = get_friends()
-
-#             return render(request, 'users.html', {'users':users})
-#     else:
-#         form = UserCreationForm()
-#     return render(request, 'auth/signup.html', {'form': form})
+    return HttpResponseRedirect('/')
 
 def auth(request):
     code = request.GET['code']
     data = {
         "grant_type": "authorization_code",
         "code": code,
-        # "redirect_uri": "http://localhost:8000/auth",
-        "redirect_uri": "http://soundandcolor.life/auth",
+        "redirect_uri": "http://localhost:8000/auth",
+        # "redirect_uri": "http://soundandcolor.life/auth",
         "client_id": 'e6f5f053a682454ca4eb1781064d3881',
         "client_secret" : "e4294f2365ec45c0be87671b0da16596"
         }
@@ -93,12 +86,13 @@ def auth(request):
     if not user:
         user = User(username=js1['id'], email=js1['email'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'])
         user.set_password("password")
-        user.save()
         # msg = "Thank you for the data. :P"
+        user.token = js['access_token']
+        user.save()
+
     user = authenticate(username=js1['id'], password="password")
-    login(request, user)
-    
-    return render(request, 'users.html', {"users": get_friends()})
+    login(request, user)    
+    return HttpResponseRedirect('/friends')
 
 def refresh(user):
     data = {
@@ -119,26 +113,53 @@ def refresh_all(request):
 
     for user in f:
         refresh(user)
-
-        # res = requests.get("https://api.spotify.com/v1/me?access_token=" + user.token)
-        # print (res)
-        # user.name = res.json()['display_name'] if res.json()['display_name'] else ''
-        # user.email = res.json()['email'] #if res.json()['email'] else ''
         users.append((user.username, user.email, user.username.split(':')[-1]))
 
-    return render(request, 'users.html', {'users': users})
+    return HttpResponseRedirect('/friends')
 
-def get_friends():
+def get_friends(current_user):
     users = []
     f = User.objects.all()
     for user in f:
-        uid = user.username.split(':')[-1]
-        users.append((user.username, user.email, uid))
+        if user != current_user:
+            name = user.name or user.username
+            users.append((user.username, user.email, name))
     return users
     
 def users(request):
-    users = get_friends()
-    return render(request, 'users.html', {'users': users})
+    current_user = request.user
+    return render(request, 'users.html', {'users': get_friends(current_user)})
+
+def home(request):
+    current_user = request.user    
+    return render(request, 'home.html', {'users': get_friends(current_user)})
+
+def details(request, username):
+    user = User.objects.get(username=username)
+    url = "https://api.spotify.com/v1/me?access_token=" + user.token
+    res = requests.get(url)
+    js = res.json()
+
+    if 'display_name' not in js:
+        refresh(user)
+        res = requests.get(url)
+        js = res.json()
+
+    name = user.name or username
+    idd = '' if name == username else username 
+    email = user.email
+
+    foll = js['followers']['total']
+    if js['images']:
+        img = js['images'][0]['url']
+    else:
+        img = ''
+
+    context = {'name':name, 'id':idd,
+               'email':email, 'foll':foll,
+               'img':img, 'username':js['id'],
+               'users':get_friends(user)}
+    return render(request, 'details.html', context)
 
 
 def search(request):
@@ -179,7 +200,7 @@ def search(request):
         dur = get_time(item['duration_ms'])
         trks.append((item['name'], dur, item['external_urls']['spotify']))
 
-    return render(request, 'search.html', {'albums':albs, 'artists':arts, 'tracks':trks})
+    return render(request, 'search.html', {'token':user.token, 'albums':albs, 'artists':arts, 'tracks':trks})
 
 
 def new(request):
@@ -193,7 +214,7 @@ def new(request):
     # while True:
     for item in js['albums']['items']:
         if item['images']:
-            img3 = item['images'][-1]['url']
+            img3 = item['images'][-2]['url']
         else:
             img3 = ''
 
@@ -207,39 +228,6 @@ def new(request):
         #     break
 
     return render(request, 'new.html', {'new':albs, 'token':user.token})
-
-
-def details(request, username):
-    user = User.objects.get(username=username)
-    url = "https://api.spotify.com/v1/me?access_token=" + user.token
-    res = requests.get(url)
-    js = res.json()
-
-    if not 'display_name' in js:
-        refresh(user)
-        url = "https://api.spotify.com/v1/me?access_token=" + user.token
-        res = requests.get(url)
-        js = res.json()
-
-    if js['display_name']:
-        name = js['display_name']
-        idd = js['id']
-    else:
-        name = js['id']
-        idd = ''
-
-    email = js['email']
-    foll = js['followers']['total']
-
-    if js['images']:
-        img = js['images'][0]['url']
-    else:
-        img = ''
-
-    context = {'name':name, 'id':idd,
-               'email':email, 'foll':foll,
-               'img':img, 'username':js['id']}
-    return render(request, 'details.html', context)
 
 
 def following(request, username):
@@ -374,8 +362,8 @@ def artist(request, artist):
     name = js1.pop('name')
     genres = ', '.join(js1.pop('genres'))
     pop = js1.pop('popularity')
-    followers = num_format(js1.pop('followers')['total'])
     img = js1.pop('images')[1]['url']
+    uri = js1.pop('uri')
 
 
     if es.exists('top-tracks', doc_type='_doc', id=artist):
@@ -440,8 +428,8 @@ def artist(request, artist):
             js = res.json()
         else:
             break
-    context = {'img':img, 'name':name, 'pop':pop, 'foll':followers, 'genres':genres,
-               'tops':trks, 'albums':albs, 'related': related, 'token':token}
+    context = {'img':img, 'name':name, 'pop':pop, 'genres':genres,
+               'tops':trks, 'albums':albs, 'related': related, 'token':token, 'uri':uri}
     return render(request, 'artist.html', context)
 
 
@@ -462,8 +450,10 @@ def album(request, album):
         js = res.json()
         es.index('album', doc_type='_doc', id=album, body=js)
 
-    img = js['images'][1]['url']
-    artist_name = js.pop('artists')[0]['name']
+    img = js['images'][0]['url']
+    artist = js.pop('artists')
+    artist_name = artist[0]['name']
+    artist_id = artist[0]['id']
     album_type = js.pop('album_type')
     genres = ', '.join(js.pop('genres'))
     name = js.pop('name')
@@ -471,6 +461,7 @@ def album(request, album):
     date = date.strftime("%B %d, %Y")
     label = js.pop('label')
     pop = js.pop('popularity')
+    uri = js.pop('uri')
 
     if es.exists('album-tracks', doc_type='_doc', id=album):
         js1 = es.get('album-tracks', doc_type='_doc', id=album)['_source']
@@ -495,8 +486,8 @@ def album(request, album):
         else:
             break
 
-    context = {'img':img, 'name':name, 'pop':pop, 'artist':artist_name, 'type':album_type,
-               'genres':genres, 'label':label, 'date':date, 'tracks':trks, 'token':token}
+    context = {'img':img, 'name':name, 'pop':pop, 'artist':artist_name, 'id':artist_id, 'type':album_type,
+               'genres':genres, 'label':label, 'date':date, 'tracks':trks, 'token':token, 'uri':uri}
     return render(request, 'album.html', context)
 
 
@@ -512,14 +503,6 @@ def genres(request, username):
 #     def get_queryset(self):
 #         """Return the last five published questions."""
 #         return Question.objects.order_by('-pub_date')[:5]
-
-# class DetailView(generic.DetailView):
-#     model = Question
-#     template_name = 'stats/detail.html'
-
-# class ResultsView(generic.DetailView):
-#     model = Question
-#     template_name = 'stats/results.html'
 
 # def vote(request, question_id):
 #     question = get_object_or_404(Question, pk=question_id)

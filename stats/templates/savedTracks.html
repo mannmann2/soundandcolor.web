@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 {% load index %}
 
-{%block head %}Saved Tracks | {{block.super}} {% endblock %}
+{%block title %}Saved Tracks | {{block.super}} {% endblock %}
+{%block head %}Tracks&emsp;&emsp;<a href = .?type=albums>Albums</a>{% endblock %}
 
-{% block tron %}
-
-<h3>Tracks&emsp;&emsp;<a href = .?type=albums>Albums</a></h3>
-
+{% block content %}
+<br>
 <ol>
 	{% for track in saved %}
         <li><a href="{{ track|index:'1' }}" target="_blank">{{ track|index:'0' }}</a>&emsp;//&emsp;<a href="{% url 'stats:artist' track|index:'3' %}?token={{ token }}">{{ track|index:'2' }}</a>&emsp;//&emsp;<a href="{% url 'stats:album' track|index:'5' %}?token={{ token }}">{{ track|index:'4' }}</a>&emsp;//&emsp;{{ track|index:'6' }}</li>
