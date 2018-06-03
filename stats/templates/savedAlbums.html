@@ -6,9 +6,9 @@
 
 {% block content %}
 <br>
-<ol>
-	{% for album in saved %}
-        <li><img width="64" height="64" src="{{ album|index:'5' }}">&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a></font>&emsp;{{ album|index:'2' }}&ensp;-&ensp;<a href="{% url 'stats:artist' album|index:'4' %}?token={{ token }}">{{ album|index:'3' }}</a></li>
+<div class="list-group list-group-flush">
+{% for album in saved %}
+    <p class="list-group-item"><img width="64" height="64" src="{{ album|index:'5' }}">&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a></font>&emsp;{{ album|index:'2' }}&ensp;-&ensp;<a href="{% url 'stats:artist' album|index:'4' %}?token={{ token }}">{{ album|index:'3' }}</a></p>
     {% endfor %}
-</ol>
+    </div>
 {% endblock %}

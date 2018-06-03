@@ -5,20 +5,13 @@
 {% block head %}Friends{% endblock %}
 {% block content %}
 <br>
-<!-- <table><tr><td width="50%"> -->
-
-<ol>
+<div class="list-group list-group-flush">
 	{% for user in users %}
-		<li><a href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}</a>&emsp;-&emsp;
-			{{ user|index:'1' }}</li>
+		<a class="list-group-item" href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}&emsp;|&emsp;
+				{{ user|index:'1' }}</a>
 	{% endfor %}
-</ol>
-
-<p>Click <a href ="{% url 'stats:refresh' %}">here</a> to refresh all tokens.</p>
-
-<!-- </td>
-<td valign='top' align='center'>
-<h3></h3></td></tr>
-</table> -->
+<br>
+<p class="list-group-item">Click <a href ="{% url 'stats:refresh' %}">here</a> to refresh all tokens.</p>
+</div>
 
 {% endblock %}

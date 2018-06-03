@@ -4,22 +4,22 @@
 {%block title %}{{ name }} | {{block.super}}{% endblock %}
 {%block head %}{% endblock%}
 {% block content %}
-<table width="100%"><tr></tr><td width="65%">
+<table width="100%"><tr></tr><td width="60%">
 {%if img %}
 	<img src="{{ img }}">
 {% endif %}
-<p><b style="font-size:500%;">{{ name }}</b><br>
+<p><b style="font-size:400%;">{{ name }}</b><br>
 {% if id %}
 	{{ id }}<br>
 {% endif %}
-<i>{{ email }}&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;{{ foll }} Followers</i></p>
-
-<div style="font-size: 180%">
-	<a href="{% url 'stats:recent' username %}">Recently Played</a><br>
-	<a href="{% url 'stats:top' username %}?type=tracks&time=short_term">Top</a><br>
-	<a href="{% url 'stats:following' username %}">Following</a><br>
-    <a href="{% url 'stats:saved' username %}?type=tracks">Saved Tracks</a><br>
-    <a href="{% url 'stats:saved' username %}?type=albums">Saved Albums</a><br>
+<i>{{ email }}&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;{{ foll }} Followers</i></p>
+<br>
+<div class="list-group list-group-flush" style="font-size: 160%">
+	<a class="list-group-item" href="{% url 'stats:recent' username %}">Recently Played</a>
+	<a class="list-group-item" href="{% url 'stats:top' username %}?type=tracks&time=short_term">Top</a>
+    <a class="list-group-item" href="{% url 'stats:saved' username %}?type=tracks">Saved Tracks</a>
+    <a class="list-group-item" href="{% url 'stats:saved' username %}?type=albums">Saved Albums</a>
+	<a class="list-group-item" href="{% url 'stats:following' username %}">Following</a>
     <!-- <a href="{% url 'stats:genres' username %}">Genres</a> -->
 </div></td>
 <td valign="top">

@@ -12,9 +12,9 @@
 	<a href=".?type=tracks&time=long_term">All Time</a>
 </p>
 <br>
-<ol>
+<div class="list-group list-group-flush">
 	{% for top in tops %}
-        <li><a href="{{ top|index:'1' }}" target="_blank">{{ top|index:'0' }}</a>&emsp;//&emsp;<a href="{% url 'stats:artist' top|index:'3' %}?token={{ token }}">{{ top|index:'2' }}</a>&emsp;//&emsp;<a href="{% url 'stats:album' top|index:'5' %}?token={{ token }}">{{ top|index:'4' }}</a>&emsp;//&emsp;{{ top|index:'6' }}</li>
+        <p class="list-group-item"><a href="{{ top|index:'1' }}" target="_blank">{{ top|index:'0' }}</a>&emsp;//&emsp;<a href="{% url 'stats:artist' top|index:'3' %}?token={{ token }}">{{ top|index:'2' }}</a>&emsp;//&emsp;<a href="{% url 'stats:album' top|index:'5' %}?token={{ token }}">{{ top|index:'4' }}</a>&emsp;//&emsp;{{ top|index:'6' }}</p>
     {% endfor %}
-</ol>
+</div>
 {% endblock %}

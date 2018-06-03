@@ -4,7 +4,7 @@
 {%block title %}{{ name }} | {{block.super}} {% endblock %}
 
 {% block content %}
-<table><tr><td style="padding-right: 20px;">
+<table width="100%"><tr><td width="60%" style="padding-right:20px;">
 <img src="{{ img }}">
 <p><b style="font-size:320%;">{{ name }}</b>&emsp;&emsp;&emsp;<b style="font-size:300%;">{{ pop }}</b>
 <br>By <a href="{% url 'stats:artist' id %}?token={{ token }}"><b>{{ artist }}</b></a><br>
