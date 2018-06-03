@@ -12,4 +12,5 @@
             {{ user|index:'1' }}</li>
     {% endfor %}
 </ol>
+<p>Click <a href ="{% url 'stats:refresh' %}">here</a> to refresh all tokens.</p>
 {% endblock %}
