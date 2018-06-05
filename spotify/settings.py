@@ -25,7 +25,7 @@ SECRET_KEY = 'twaks-&fh^c%3z#qm7*pjfj-hln_=53^x#e$def8n$bswu8xy1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'soundandcolor.life', 'www.soundandcolor.life']
+ALLOWED_HOSTS = ['www.localhost', 'www.soundandcolor.life', 'www.soundandcolor.dlinkddns.com', 'www.192.168.1.100']
 
 # SECURE_SSL_REDIRECT = True
 # SESSION_COOKIE_SECURE = True
@@ -61,7 +61,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+PREPEND_WWW = True
 ROOT_URLCONF = 'spotify.urls'
 
 TEMPLATES = [

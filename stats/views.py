@@ -8,7 +8,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 # from django.urls import reverse
 # from django.views import generic
-# import json
+import json
 import spotipy
 import requests
 from elasticsearch import Elasticsearch
@@ -23,6 +23,32 @@ from .models import CustomUser as User
 
 esOn = True
 es = Elasticsearch(['localhost:9200'])
+
+def save():
+    with open('spotify.txt', 'r') as f:
+        data = f.read()
+
+    data = json.loads('[' + data[:-1] + ']')
+
+    for js in data:
+        data2 = {
+        "grant_type": "refresh_token",
+        "refresh_token": js['refresh_token'],
+        "client_id": 'e6f5f053a682454ca4eb1781064d3881',
+        "client_secret": "e4294f2365ec45c0be87671b0da16596"
+        }
+
+        res = requests.post("https://accounts.spotify.com/api/token", data=data2)
+
+        res = requests.get("https://api.spotify.com/v1/me?access_token=" + res.json()['access_token'])
+        js1 = res.json()
+        print(js1)
+        x = User.objects.filter(username=js1['id'])
+        if not x:
+            print (js1['id'])
+            user = User(username=js1['id'], email=js1['email'], uri=js1['uri'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'])
+            user.set_password('password')
+            user.save()
 
 def num_format(num):
     return "{:,}".format(num)
@@ -70,23 +96,21 @@ def auth(request):
     data = {
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": "http://localhost:8000/auth",
-        # "redirect_uri": "http://soundandcolor.life/auth",
+        # "redirect_uri": "http://localhost:8000/auth",
+        "redirect_uri": "http://www.soundandcolor.life/auth",
         "client_id": 'e6f5f053a682454ca4eb1781064d3881',
         "client_secret" : "e4294f2365ec45c0be87671b0da16596"
         }
 
     res = requests.post("https://accounts.spotify.com/api/token", data=data)
     js = res.json()
-    print(js)
     res = requests.get("https://api.spotify.com/v1/me?access_token=" + js['access_token'])
     js1 = res.json()
     print(js1)
     user = User.objects.filter(username=js1['id'])
     if not user:
-        user = User(username=js1['id'], email=js1['email'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'])
+        user = User(username=js1['id'], email=js1['email'], uri=js1['uri'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'])
         user.set_password("password")
-        # msg = "Thank you for the data. :P"
         user.token = js['access_token']
         user.save()
 
@@ -131,7 +155,8 @@ def users(request):
     return render(request, 'users.html', {'users': get_friends(current_user)})
 
 def home(request):
-    current_user = request.user    
+    current_user = request.user
+    # save()
     return render(request, 'home.html', {'users': get_friends(current_user)})
 
 def details(request, username):
@@ -139,7 +164,6 @@ def details(request, username):
     url = "https://api.spotify.com/v1/me?access_token=" + user.token
     res = requests.get(url)
     js = res.json()
-
     if 'display_name' not in js:
         refresh(user)
         res = requests.get(url)
@@ -148,6 +172,7 @@ def details(request, username):
     name = user.name or username
     idd = '' if name == username else username 
     email = user.email
+    uri = user.uri
 
     foll = js['followers']['total']
     if js['images']:
@@ -158,7 +183,7 @@ def details(request, username):
     context = {'name':name, 'id':idd,
                'email':email, 'foll':foll,
                'img':img, 'username':js['id'],
-               'users':get_friends(user)}
+               'users':get_friends(user), 'uri':uri}
     return render(request, 'details.html', context)
 
 
@@ -364,7 +389,6 @@ def artist(request, artist):
     pop = js1.pop('popularity')
     img = js1.pop('images')[1]['url']
     uri = js1.pop('uri')
-
 
     if es.exists('top-tracks', doc_type='_doc', id=artist):
         js2 = es.get('top-tracks', doc_type='_doc', id=artist)['_source']
