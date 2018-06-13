@@ -11,8 +11,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 import json
 import spotipy
 import requests
+from random import random
 from elasticsearch import Elasticsearch
+import plotly.plotly as py
+import plotly.graph_objs as go
+import plotly
 
+plotly.tools.set_credentials_file(username='armanmann2', api_key='UQYdm8ikKKAL7pLJ7wzp')
+import networkx as nx
 from dateutil.parser import parse
 from django.contrib.auth import logout, login
 
@@ -96,8 +102,8 @@ def auth(request):
     data = {
         "grant_type": "authorization_code",
         "code": code,
-        # "redirect_uri": "http://localhost:8000/auth",
-        "redirect_uri": "http://www.soundandcolor.life/auth",
+        "redirect_uri": "http://www.localhost:8000/auth",
+        # "redirect_uri": "http://www.soundandcolor.life/auth",
         "client_id": 'e6f5f053a682454ca4eb1781064d3881',
         "client_secret" : "e4294f2365ec45c0be87671b0da16596"
         }
@@ -147,6 +153,17 @@ def get_friends(current_user):
     for user in f:
         if user != current_user:
             name = user.name or user.username
+            # try:
+            #     url = "https://api.spotify.com/v1/me/player/currently-playing?access_token=" + user.token
+            #     js = requests.get(url).json()
+            #     print (js)
+            #     tName = js['item']['name']
+            #     tArtist = js['item']['artists'][0]['name']
+            #     tUrl = js['item']['href']
+            # except:
+            #     tName =''
+            #     tArtist = ''
+            #     tUrl = ''
             users.append((user.username, user.email, name))
     return users
     
@@ -156,8 +173,25 @@ def users(request):
 
 def home(request):
     current_user = request.user
+    cols = []
+    for ch in "Sound & Color":
+        cols.append([ch, 60+100*random(), 140+100*random(), 155+100*random()])
     # save()
-    return render(request, 'home.html', {'users': get_friends(current_user)})
+    return render(request, 'home.html', {'users': get_friends(None), 'cols':cols})
+
+# def ref(request):
+#     cols = []
+#     for ch in "Sound & Color":
+#         cols.append([ch, 60+100*random(), 140+100*random(), 155+100*random()])
+#     return render(request, 'dom.html', {'cols':cols})
+#     # return HttpResponse(cols)
+
+# def ff(request):
+#     test_file = open('config.json', 'rb')
+#     response = HttpResponse(content=test_file)
+#     response['Content-Type'] = 'application/pdf'
+#     response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % 'whatever'
+#     return response
 
 def details(request, username):
     user = User.objects.get(username=username)
@@ -166,6 +200,7 @@ def details(request, username):
     js = res.json()
     if 'display_name' not in js:
         refresh(user)
+        url = "https://api.spotify.com/v1/me?access_token=" + user.token
         res = requests.get(url)
         js = res.json()
 
@@ -174,15 +209,13 @@ def details(request, username):
     email = user.email
     uri = user.uri
 
-    foll = js['followers']['total']
     if js['images']:
         img = js['images'][0]['url']
     else:
         img = ''
 
     context = {'name':name, 'id':idd,
-               'email':email, 'foll':foll,
-               'img':img, 'username':js['id'],
+               'email':email, 'img':img, 'username':js['id'],
                'users':get_friends(user), 'uri':uri}
     return render(request, 'details.html', context)
 
@@ -253,6 +286,56 @@ def new(request):
         #     break
 
     return render(request, 'new.html', {'new':albs, 'token':user.token})
+
+def get_related_artists(id, token):
+    url = "https://api.spotify.com/v1/artists/" + id + "/related-artists?access_token=" + token
+    # print (url)
+    res = requests.get(url)
+    js = res.json()
+    return js
+
+def graphs(request):
+    # ti = request.user.token
+    # graph = nx.DiGraph()
+    # i = 0
+    # p = []
+    # id1 = '1O10apSOoAPjOu6UhUNmeI'
+    # a1 = 'Unknown Mortal Orchestra'
+    # print (a1)
+    # p.append(a1)
+    # graph.add_node(a1, ntype = 'level' + str(i))
+    # i+=1
+    # js = get_related_artists(id1, ti)
+    # def finc(a, js, i):
+    #     rel = []
+    #     for artist in js['artists']:
+    #         if not graph.has_node(artist['name']):
+    #             graph.add_node(artist['name'], ntype = 'level' + str(i))
+    #         if not graph.has_edge(a, artist['name']):
+    #             graph.add_edge(a, artist['name'])
+                
+    #         rel.append((artist['name'], artist['id']))
+    #         nx.write_gexf(graph, "related.gexf")    
+    #     i+=1
+    #     if i<10:    
+    #         for (a, reli) in rel:
+    #             if a not in p:
+    #                 print (a)
+    #                 p.append(a)
+    #                 js = get_related_artists(reli, ti)
+    #                 if 'artists' not in js:                  
+    #                     res = requests.post("https://accounts.spotify.com/api/token", data=data)
+    #                     js = json.loads(res.text)
+    #                     token = js['access_token']
+    #                     js = get_related_artists(reli, ti)
+    #                     if 'artists' in js:
+    #                         print ("OK")
+    #                     else:
+    #                         print ("nOK")
+    #                 finc(a, js, i)
+    # finc(a1, js, i)
+    # nx.write_gexf(graph, "related.gexf")
+    return render(request, "graphs3.html", {})
 
 
 def following(request, username):

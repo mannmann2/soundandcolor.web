@@ -4,7 +4,7 @@
 {%block title %}{{ name }} | {{block.super}}{% endblock %}
 {%block head %}{% endblock%}
 {% block content %}
-<table width="100%"><tr></tr><td width="60%">
+<table width="100%"><tr ><td width="60%">
 {%if img %}
 	<img src="{{ img }}">
 {% endif %}
@@ -15,7 +15,7 @@
 {% if id %}
 	{{ id }}<br>
 {% endif %}
-<i>{{ email }}&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;{{ foll }} Followers</i></p>
+<i>{{ email }}</i></p>
 <br>
 <div class="list-group list-group-flush" style="font-size: 160%">
 	<a class="list-group-item" href="{% url 'stats:recent' username %}">Recently Played</a>
@@ -25,7 +25,7 @@
 	<a class="list-group-item" href="{% url 'stats:following' username %}">Following</a>
     <!-- <a href="{% url 'stats:genres' username %}">Genres</a> -->
 </div></td>
-<td valign="top">
+<td valign="top" style="padding:7%">
 	<b style="font-size:240%;">Friends</b><br><p>
 	<ol style="font-size: 120%">
     {% for user in users %}

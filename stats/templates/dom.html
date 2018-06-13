@@ -1,0 +1,4 @@
+{% load index %}
+<div id="snc" style="line-height:49%; letter-spacing: -6px; font-size:1080%; text-align: center">
+    {% for col in cols %}<b style="color:rgb({{ col|index:'1' }}, {{ col|index:'2' }}, {{ col|index:'3' }})">{{ col|index:'0' }}</b>{% endfor %}
+</div>

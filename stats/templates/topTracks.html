@@ -14,7 +14,7 @@
 <br>
 <div class="list-group list-group-flush">
 	{% for top in tops %}
-        <p class="list-group-item"><a href="{{ top|index:'1' }}" target="_blank">{{ top|index:'0' }}</a>&emsp;//&emsp;<a href="{% url 'stats:artist' top|index:'3' %}?token={{ token }}">{{ top|index:'2' }}</a>&emsp;//&emsp;<a href="{% url 'stats:album' top|index:'5' %}?token={{ token }}">{{ top|index:'4' }}</a>&emsp;//&emsp;{{ top|index:'6' }}</p>
+        <p class="list-group-item"><a href="{{ top|index:'1' }}" target="_blank">{{ top|index:'0' }}</a>&emsp;|&emsp;<a href="{% url 'stats:artist' top|index:'3' %}?token={{ token }}">{{ top|index:'2' }}</a>&emsp;|&emsp;<a href="{% url 'stats:album' top|index:'5' %}?token={{ token }}">{{ top|index:'4' }}</a>&emsp;|&emsp;{{ top|index:'6' }}</p>
     {% endfor %}
 </div>
 {% endblock %}

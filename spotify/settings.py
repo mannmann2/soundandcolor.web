@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # THIRD PARTY APPS
     'crispy_forms',
-    
     # 'stats'
 ]
 
