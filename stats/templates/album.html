@@ -2,8 +2,16 @@
 {% load index %}
 
 {%block title %}{{ name }} | {{block.super}} {% endblock %}
+{%block style %}
+<style>
+body, nav.navbar {
+    background-color:rgba({{ dom|index:'0' }},{{ dom|index:'1' }},{{ dom|index:'2' }}, 0.5);
+}
+</style>
+{% endblock %}
 
 {% block content %}
+<p>{{ dom }}</p>
 <table width="100%"><tr><td width="60%" style="padding-right:20px;">
 <img src="{{ img }}">
 <p><b style="font-size:320%;">{{ name }}</b>&emsp;&emsp;&emsp;<b style="font-size:300%;">{{ pop }}</b>

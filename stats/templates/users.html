@@ -2,8 +2,36 @@
 {% load index %}
 
 {%block title %}Friends | {{block.super}} {% endblock %}
-{% block head %}Friends{% endblock %}
+
+
+{% block head %}Friends 
+<form style='position:relative; float:right' action="/add" method="get" class="input-group col-sm-4">
+	<input class="form-control form-control-sm col-sm-10" type="search" placeholder="Username" name="query" aria-label="Search">
+	<div class="input-group-append">
+	<button role="button" class="btn btn-dark" type='submit'>Add Friend</button>
+</div>
+</form>
+{% endblock %}
+
+
+
 {% block content %}
+
+{% if message %}
+	<h4>{{ message }}</h4>
+{% endif %}
+<!-- onclick="display()"
+<script type="text/javascript">
+	function display() {
+		var z = prompt("Enter Username");
+		if(z != null) {
+			document.getElementById("demo").innerHTML = "thankyou " + z;
+			document.getElementById("case").style.display = 'block';
+		} else {
+			document.getElementById("demo").innerHTML = "thankyou";
+		}
+	}
+</script> -->
 <br>
 <div class="list-group list-group-flush">
 	{% for user in users %}

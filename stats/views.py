@@ -13,14 +13,17 @@ import spotipy
 import requests
 from random import random
 from elasticsearch import Elasticsearch
-import plotly.plotly as py
-import plotly.graph_objs as go
-import plotly
+# import plotly.plotly as py
+# import plotly.graph_objs as go
+# import plotly
+from colorthief import ColorThief
 
-plotly.tools.set_credentials_file(username='armanmann2', api_key='UQYdm8ikKKAL7pLJ7wzp')
+# plotly.tools.set_credentials_file(username='armanmann2', api_key='UQYdm8ikKKAL7pLJ7wzp')
 import networkx as nx
 from dateutil.parser import parse
 from django.contrib.auth import logout, login
+from urllib.request import urlopen
+import io
 
 from .models import CustomUser as User
 
@@ -52,7 +55,7 @@ def save():
         x = User.objects.filter(username=js1['id'])
         if not x:
             print (js1['id'])
-            user = User(username=js1['id'], email=js1['email'], uri=js1['uri'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'])
+            user = User(username=js1['id'], email=js1['email'], uri=js1['uri'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'], scope=js['scope'])
             user.set_password('password')
             user.save()
 
@@ -115,13 +118,16 @@ def auth(request):
     print(js1)
     user = User.objects.filter(username=js1['id'])
     if not user:
-        user = User(username=js1['id'], email=js1['email'], uri=js1['uri'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'])
+        user = User(username=js1['id'], email=js1['email'], uri=js1['uri'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'], scope=js['scope'])
         user.set_password("password")
         user.token = js['access_token']
         user.save()
+    else: ######
+        user[0].scope = js['scope']
+        user[0].save()
 
-    user = authenticate(username=js1['id'], password="password")
-    login(request, user)    
+    user = authenticate(username=js1['id'], password="password")    
+    login(request, user)
     return HttpResponseRedirect('/friends')
 
 def refresh(user):
@@ -147,11 +153,37 @@ def refresh_all(request):
 
     return HttpResponseRedirect('/friends')
 
+def add(request):
+    current_user = request.user
+    username = request.GET['query']
+
+    # ADD FRIENDS!!!! NEED TO CHECK IF USER EXISTS and add as friend in both users after a notification
+    # for user1 in User.objects.all():
+    #     x += user1.username
+    if username and User.objects.filter(username=username) and username not in current_user.friends.split(',')[:-1]:
+        current_user.friends += username + ','
+        current_user.save()
+        message = 'Added ' + username + '.'
+        # message = 'Notification sent.'
+    elif not username:
+        message = ''
+    elif not User.objects.filter(username=username):
+        message = "User does not exist. Make sure they've signed up."        
+    else:
+        message = 'You are already friends.'
+    return render(request, 'users.html', {'users': get_friends(current_user), 'message':message})
+    # return HttpResponseRedirect('/friends')
+
 def get_friends(current_user):
     users = []
     f = User.objects.all()
+    if current_user is None:
+        fx = [user.username for user in f]
+    else:
+        fx = current_user.friends.split(',')[:-1]
+    print(fx)
     for user in f:
-        if user != current_user:
+        if user != current_user and user.username in fx:
             name = user.name or user.username
             # try:
             #     url = "https://api.spotify.com/v1/me/player/currently-playing?access_token=" + user.token
@@ -175,9 +207,12 @@ def home(request):
     current_user = request.user
     cols = []
     for ch in "Sound & Color":
-        cols.append([ch, 60+100*random(), 140+100*random(), 155+100*random()])
+        cols.append([ch, 20+100*random(), 140+100*random(), 155+100*random()])
     # save()
     return render(request, 'home.html', {'users': get_friends(None), 'cols':cols})
+
+
+
 
 # def ref(request):
 #     cols = []
@@ -192,6 +227,9 @@ def home(request):
 #     response['Content-Type'] = 'application/pdf'
 #     response['Content-Disposition'] = 'attachment; filename="%s.pdf"' % 'whatever'
 #     return response
+
+
+
 
 def details(request, username):
     user = User.objects.get(username=username)
@@ -286,6 +324,7 @@ def new(request):
         #     break
 
     return render(request, 'new.html', {'new':albs, 'token':user.token})
+
 
 def get_related_artists(id, token):
     url = "https://api.spotify.com/v1/artists/" + id + "/related-artists?access_token=" + token
@@ -570,6 +609,11 @@ def album(request, album):
     pop = js.pop('popularity')
     uri = js.pop('uri')
 
+    img_url = urlopen(img)
+    img_file = io.BytesIO(img_url.read())
+    color_thief = ColorThief(img_file)
+    dom = color_thief.get_color(quality=50)
+
     if es.exists('album-tracks', doc_type='_doc', id=album):
         js1 = es.get('album-tracks', doc_type='_doc', id=album)['_source']
     else:
@@ -593,14 +637,16 @@ def album(request, album):
         else:
             break
 
-    context = {'img':img, 'name':name, 'pop':pop, 'artist':artist_name, 'id':artist_id, 'type':album_type,
-               'genres':genres, 'label':label, 'date':date, 'tracks':trks, 'token':token, 'uri':uri}
+    context = {'img':img, 'name':name, 'pop':pop, 'artist':artist_name, 'id':artist_id, 'type':album_type, "dom":dom, 'genres':genres, 'label':label, 'date':date, 'tracks':trks, 'token':token, 'uri':uri}
     return render(request, 'album.html', context)
 
 
 def genres(request, username):
     user = User.objects.get(username=username)
     pass
+
+
+
 
 
 # class IndexView(generic.ListView):

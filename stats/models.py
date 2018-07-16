@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+# from django.contrib.postgres.fields import ArrayField
 
 # class Question(models.Model):
 
@@ -47,7 +48,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     access_token = models.CharField(max_length=400)
     refresh_token = models.CharField(max_length=400)
     token = models.CharField(max_length=400, blank=True)
+    scope = models.CharField(max_length=400, blank=True)
 
+    friends = models.TextField(blank=True, default='')
+    
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 

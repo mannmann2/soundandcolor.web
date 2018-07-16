@@ -15,6 +15,7 @@ urlpatterns = [
     path('auth', views.auth, name='auth'),
     path('refresh', views.refresh_all, name='refresh'),
     path('friends', views.users, name='users'),
+    path('add', views.add, name='add'),
     path('new', views.new, name='new'),
     path('graphs', views.graphs, name='graphs'),
     path('search', views.search, name='search'),
