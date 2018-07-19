@@ -4,7 +4,8 @@
 {%block title %}{{ name }} | {{block.super}}{% endblock %}
 {%block head %}{% endblock%}
 {% block content %}
-<table width="100%"><tr ><td width="60%">
+<table width="100%"><tr>
+<td width="60%">
 {%if img %}
 	<img src="{{ img }}">
 {% endif %}
@@ -31,7 +32,16 @@
     {% for user in users %}
         <li><a href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}</a></li>
     {% endfor %}
-</ol>	</p>
-</td></tr>
-</table>
+</ol></p>
+<br>
+{% if genres %}
+<b style="font-size:160%;">Your top genres:</b><br><p>
+<ol style="font-size: 100%">
+{% for genre in genres %}
+	<li><a href="{% url 'stats:viz' %}?genre={{ genre|index:'0' }}&username={{ username }}">{{ genre|index:'0' }}</a> : {{ genre|index:'1' }}</li>
+{% endfor %}
+</ol></p>
+{% endif %}
+</td>
+</tr></table>
 {% endblock %}

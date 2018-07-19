@@ -20,6 +20,7 @@
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    {% if request.user.is_authenticated %}
     <ul class="navbar-nav mr-4">
       <li class="nav-item ">
           <a class="nav-link" href="{% url 'stats:new' %}">New Releases</a>
@@ -40,8 +41,9 @@
       </li> -->
 
     </ul>
-    <form action="/search" method="get" class="form-inline col-sm-4 mr-auto">
-      <input class="form-control form-control-sm col-sm-10" type="search" placeholder="Search" name="query" aria-label="Search">
+    {% endif %}
+    <form action="/search" method="get" class="form-inline col-sm-4 ml-auto mr-auto">
+      <input class="form-control form-control-sm col-sm-12" type="search" placeholder="Search" name="query" aria-label="Search">
     </form>
       <ul class="navbar-nav">
         {% if request.user.is_authenticated %}

@@ -7,6 +7,7 @@
 {% block content %}
 <br>
 {% if following %}
+<h4>Total: {{ count }}</h4>
 <div class="list-group list-group-flush">
     {% for artist in following %}
         <p class="list-group-item"><img width="64" height="64" src={{ artist|index:'2' }}></img>&emsp;<font size='+2'><a href="{% url 'stats:artist' artist|index:'1' %}?token={{ token }}">{{ artist|index:'0' }}</a></font>&emsp;&emsp;&emsp;<font size='+3'>{{ artist|index:'3' }}</font></p>

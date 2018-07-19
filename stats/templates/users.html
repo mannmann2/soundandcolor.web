@@ -42,4 +42,12 @@
 <p class="list-group-item">Click <a href ="{% url 'stats:refresh' %}">here</a> to refresh all tokens.</p>
 </div>
 
+<div>
+<br>
+<h4>Genres listened to by your friends:</h4>
+<ol>
+{% for genre in genres %}
+	<li>{{ genre|index:'0' }} : {{ genre|index:'1' }}</li>
+{% endfor %}
+</ol></div>
 {% endblock %}
