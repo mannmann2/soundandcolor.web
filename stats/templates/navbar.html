@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load notifications_tags %}
 
 {%block style %}
 <style>
@@ -23,11 +24,14 @@
     {% if request.user.is_authenticated %}
     <ul class="navbar-nav mr-4">
       <li class="nav-item ">
-          <a class="nav-link" href="{% url 'stats:new' %}">New Releases</a>
+          <a class="nav-link" href="{% url 'stats:new' %}">New</a>
       </li>
       <li class="nav-item ">
         <a class="nav-link" href="{% url 'stats:graphs' %}">Graph</a>
       </li>
+      <li class="nav-item ">
+          <a class="nav-link" href="{% url 'stats:download' %}">Files</a>
+        </li>
 <!--       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Dropdown
@@ -52,7 +56,8 @@
           <li class="nav-item"><a class="nav-link" href="{% url 'stats:top' request.user %}?type=tracks&time=short_term">Top</a></li>
           <li class="nav-item"><a class="nav-link" href="{% url 'stats:saved' request.user %}?type=albums">Saved</a></li>
           <li class="nav-item"><a class="nav-link" href="{% url 'stats:following' request.user %}">Following</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'stats:users' %}">Friends</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'stats:users' %}">Friends <span class="badge badge-danger">{% live_notify_badge %}</span></a>
+          </li>
           <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ request.user }}</a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="{% url 'stats:details' request.user %}">Profile</a>
@@ -64,7 +69,7 @@
 
         {% else %}
           <li class="nav-item"><a class="nav-link" 
-          href="https://accounts.spotify.com/authorize/?client_id=e6f5f053a682454ca4eb1781064d3881&response_type=code&redirect_uri=http://www.localhost:8000/auth&scope=user-top-read%20user-follow-read%20user-library-read%20user-read-recently-played%20user-read-email%20user-read-currently-playing%20streaming%20playlist-modify-private%20playlist-modify-public">
+          href="https://accounts.spotify.com/authorize/?client_id=e6f5f053a682454ca4eb1781064d3881&response_type=code&redirect_uri=http://www.localhost:8000/auth&scope=user-top-read%20user-follow-read%20user-library-read%20user-read-recently-played%20user-read-email%20user-read-currently-playing%20user-read-playback-state%20user-modify-playback-state%20streaming%20playlist-modify-private%20playlist-modify-public">
               Log In<span class="sr-only">(current)</span></a></li>
         <!-- <li class="nav-item"><a class="nav-link" href="">Sign Up<span class="sr-only">(current)</span></a></li> -->
 

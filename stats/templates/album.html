@@ -12,10 +12,10 @@ body, nav.navbar {
 
 {% block content %}
 <p>{{ dom }}</p>
-<table width="100%"><tr><td width="60%" style="padding-right:20px;">
+<div class='row'><div class="col-7" style="padding-right:20px;">
 <img src="{{ img }}">
 <p><b style="font-size:320%;">{{ name }}</b>&emsp;&emsp;&emsp;<b style="font-size:300%;">{{ pop }}</b>
-<br>By <a href="{% url 'stats:artist' id %}?token={{ token }}"><b>{{ artist }}</b></a><br>
+<br>By <a href="{% url 'stats:artist' id %}"><b>{{ artist }}</b></a><br>
 <!-- {{ type }}<br> -->
 <i>{{ date }}</i><br>
 {{ genres }}</p>
@@ -33,9 +33,9 @@ body, nav.navbar {
         <li><a href="{{ track|index:'2' }}" target="_blank">{{ track|index:'0' }}</a>&emsp;{{ track|index:'1' }}</li>
     {% endfor %}
 </ol>
-</td>
-<td valign="top">
+</div>
+<div>
     <iframe src="https://open.spotify.com/embed?uri={{ uri }}&theme=white" width="300" height="380" 
     frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-</td></tr></table>
+</div></div>
 {% endblock %}

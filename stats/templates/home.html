@@ -5,7 +5,7 @@
 {%block head %}{% endblock %}
 
 {% block content %}
-<meta http-equiv="refresh" content="2" >
+<meta http-equiv="refresh" content="4" >
 
 <br>
 <!-- <script type="text/javascript" src="https://ajax.microsoft.com/ajax/jQuery/jquery-1.4.2.min.js">
@@ -24,16 +24,16 @@ $("#snc").load("ref");
 <p id="snc" style="line-height:48%; letter-spacing: -6px; font-size:1080%; text-align: center">
         {% for col in cols %}<b style="color:rgb({{ col|index:'1' }}, {{ col|index:'2' }}, {{ col|index:'3' }})">{{ col|index:'0' }}</b>{% endfor %}
 </p>
-<!-- <table width="100%"><tr><td width="1%"> -->
-<!-- </td><td> -->
-
 <div class="list-group list-group-flush">
     <!-- <p style="font-size:320%; letter-spacing:0px; position:relative; left:0%; top:0%; transform:rotate(-90deg);">Users</p> -->
-    {% for user in users %}
-        <a class="list-group-item" href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}</a>
-    {% endfor %}
-    <br>
-<p class="list-group-item">Click <a href ="{% url 'stats:refresh' %}">here</a> to refresh all tokens.</p>
+    {% if request.user.is_authenticated %}
+        {% for user in users %}
+            <a class="list-group-item" href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}</a>
+        {% endfor %}
+        <br>
+        <p class="list-group-item">Click <a href ="{% url 'stats:refresh' %}">here</a> to refresh all tokens.</p>
+    {% else %}
+        <p class="list-group-item"></p>
+    {% endif %}
 </div>
-<!-- </td></tr></table> -->
 {% endblock %}

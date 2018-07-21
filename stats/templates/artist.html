@@ -4,7 +4,7 @@
 {%block title %}{{ name }} | {{block.super}} {% endblock %}
 
 {% block content %}
-<table width="100%"><tr><td style="padding-right: 20px;" width="60%">
+<div class='row'><div class='col-12 col-md-8'>
 	<img src="{{ img }}">
 
 	<p><b style="font-size:320%;">{{ name }}</b>&emsp;&emsp;&emsp;<b style="font-size:300%;">{{ pop }}</b><br>
@@ -25,20 +25,20 @@
 <h3>Albums</h3>
 <ol>
 	{% for album in albums %}
-        <li><img width="64" height="64" src={{ album|index:'4' }}>&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a></font>&emsp;{{ album|index:'2' }}&ensp;-&ensp;{{ album|index:'3' }}</li>
+        <li><img width="64" height="64" src={{ album|index:'4' }}>&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}">{{ album|index:'0' }}</a></font>&emsp;{{ album|index:'2' }}&ensp;-&ensp;{{ album|index:'3' }}</li>
     {% endfor %}
 </ol>
 
 
-</td><td valign="top">
+</div><div>
 		<iframe src="https://open.spotify.com/embed?uri={{ uri }}&theme=white" width="300" height="380" 
 			frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
 		<h4><br>Related Artists</h4>
 		{% for artist in related %}
 			<img src={{ artist|index:'2' }}></img>&emsp;
-			<a href="{% url 'stats:artist' artist|index:'1' %}?token={{ token }}">{{ artist|index:'0' }}</a>
+			<a href="{% url 'stats:artist' artist|index:'1' %}">{{ artist|index:'0' }}</a>
 			&emsp;&emsp;&emsp;<font size='+1'>{{ artist|index:'3' }}</font><br>
 		{% endfor %}
-	</td></tr></table>
+</div></div>
 
 {% endblock %}

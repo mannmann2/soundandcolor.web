@@ -1,18 +1,17 @@
 {% extends "base.html" %}
+{% load notifications_tags %}
 {% load index %}
 
 {%block title %}Friends | {{block.super}} {% endblock %}
 
-
 {% block head %}Friends 
-<form style='position:relative; float:right' action="/add" method="get" class="input-group col-sm-4">
-	<input class="form-control form-control-sm col-sm-10" type="search" placeholder="Username" name="query" aria-label="Search">
+<form style='position:relative; float:right' action="/add" method="get" class="input-group col-12 col-sm-4">
+	<input class="form-control form-control-sm" type="search" placeholder="Username" name="query" aria-label="Search">
 	<div class="input-group-append">
 	<button role="button" class="btn btn-dark" type='submit'>Add Friend</button>
 </div>
 </form>
 {% endblock %}
-
 
 
 {% block content %}
@@ -33,21 +32,37 @@
 	}
 </script> -->
 <br>
-<div class="list-group list-group-flush">
+<div class='row'><div style="padding-right:10%" class="col-12 col-md-8 list-group list-group-flush">
 	{% for user in users %}
 		<a class="list-group-item" href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}&emsp;|&emsp;
 				{{ user|index:'1' }}</a>
 	{% endfor %}
-<br>
-<p class="list-group-item">Click <a href ="{% url 'stats:refresh' %}">here</a> to refresh all tokens.</p>
+	<br>
+	<p class="list-group-item">Click <a href ="{% url 'stats:refresh' %}">here</a> to refresh all tokens.</p>
 </div>
-
+{% if genres %}
 <div>
+	<h4>Genres your friends listen to:</h4>
+	<ol>
+	{% for genre in genres %}
+		<li>{{ genre|index:'0' }} : {{ genre|index:'1' }}</li>
+	{% endfor %}
+	</ol>
+</div>
+{% endif %}</div>
+
+{% if notifications %}
+<br><br>
+<h4>Notifications</h4>
+{% for notifi in notifications %}
+<div class='card text-white bg-dark'>
+	<div class='card-body'>
+		<p>{{ notifi|index:'0' }}</p>
+	<a href="/add2?btn=accept&user={{ notifi|index:'1' }}" role="button" class="btn btn-sm btn-success">Accept</a>
+	<a href="/add2?btn=decline&user={{ notifi|index:'1' }}" role="button" class="btn btn-sm btn-danger">Decline</a>
+</div></div>
 <br>
-<h4>Genres listened to by your friends:</h4>
-<ol>
-{% for genre in genres %}
-	<li>{{ genre|index:'0' }} : {{ genre|index:'1' }}</li>
-{% endfor %}
-</ol></div>
+{% endfor %} 
+{% endif %}
+
 {% endblock %}

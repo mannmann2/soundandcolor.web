@@ -8,7 +8,10 @@
 <br>
 <div class="list-group list-group-flush">
 	{% for rec in recent %}
-        <p class="list-group-item">{{ rec|index:'7' }}<br><a href="{{ rec|index:'1' }}" target="_blank">{{ rec|index:'0' }}</a>&emsp;|&emsp;<a href="{% url 'stats:artist' rec|index:'3' %}?token={{ token }}">{{ rec|index:'2' }}</a>&emsp;|&emsp;<a href="{% url 'stats:album' rec|index:'5' %}?token={{ token }}">{{ rec|index:'4' }}</a>&emsp;|&emsp;{{ rec|index:'6' }}</p>
+        <div class='row'>
+            <img width="64" height="64" src="{{ rec|index:'8' }}">
+            <p class="list-group-item">{{ rec|index:'7' }}<br><a href="{{ rec|index:'1' }}" target="_blank">{{ rec|index:'0' }}</a>&emsp;|&emsp;<a href="{% url 'stats:artist' rec|index:'3' %}">{{ rec|index:'2' }}</a>&emsp;|&emsp;<a href="{% url 'stats:album' rec|index:'5' %}">{{ rec|index:'4' }}</a>&emsp;|&emsp;{{ rec|index:'6' }}</p>
+        </div>
     {% endfor %}
 </div>
 {% endblock %}

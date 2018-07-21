@@ -4,12 +4,11 @@
 {%block title %}{{ name }} | {{block.super}}{% endblock %}
 {%block head %}{% endblock%}
 {% block content %}
-<table width="100%"><tr>
-<td width="60%">
+<div class='row'><div class='col-md-7'>
 {%if img %}
 	<img src="{{ img }}">
 {% endif %}
-<p><b style="font-size:400%;">{{ name }}</b><br>
+<p><b style="font-size:500%;">{{ name }}</b><br>
 	<iframe src="https://open.spotify.com/follow/1/?uri={{ uri }}&size=detail&theme=light" 
 	width="300" height="56" scrolling="no" frameborder="0" style="border:none; overflow:hidden;" 
 	allowtransparency="true"></iframe><br>
@@ -20,28 +19,44 @@
 <br>
 <div class="list-group list-group-flush" style="font-size: 160%">
 	<a class="list-group-item" href="{% url 'stats:recent' username %}">Recently Played</a>
-	<a class="list-group-item" href="{% url 'stats:top' username %}?type=tracks&time=short_term">Top</a>
+	<a class="list-group-item" href="{% url 'stats:top' username %}?type=tracks">Top</a>
     <a class="list-group-item" href="{% url 'stats:saved' username %}?type=tracks">Saved Tracks</a>
     <a class="list-group-item" href="{% url 'stats:saved' username %}?type=albums">Saved Albums</a>
 	<a class="list-group-item" href="{% url 'stats:following' username %}">Following</a>
-    <!-- <a href="{% url 'stats:genres' username %}">Genres</a> -->
-</div></td>
-<td valign="top" style="padding:7%">
-	<b style="font-size:240%;">Friends</b><br><p>
-	<ol style="font-size: 120%">
-    {% for user in users %}
-        <li><a href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}</a></li>
-    {% endfor %}
-</ol></p>
+</div>
+<div>
+	{% if common %}
+		<br><b style="font-size:200%;">Artists in common: {{ count }}</b><br><p>
+		{% for artist in common %}
+			<a href="{% url 'stats:artist' artist|index:'1' %}">{{ artist|index:'0' }}</a>, 
+		{% endfor %}
+		</p>
+	{% endif %}
+</div></div>
+<div class='col-12 col-md-5' style="padding-left:10%; padding-top:4%">
+{% if now %}
+	<b style="font-size:130%;">Now Playing:</b><br>
+	<p>&emsp;<a href="{{ now|index:'1' }}" target="_blank">{{ now|index:'0' }}</a> by <a href="{% url 'stats:artist' now|index:'3' %}">{{ now|index:'2' }}</a><br>&emsp;Album: <a href="{% url 'stats:album' now|index:'5' %}">{{ now|index:'4' }}</a>
+	</p>
 <br>
-{% if genres %}
-<b style="font-size:160%;">Your top genres:</b><br><p>
-<ol style="font-size: 100%">
-{% for genre in genres %}
-	<li><a href="{% url 'stats:viz' %}?genre={{ genre|index:'0' }}&username={{ username }}">{{ genre|index:'0' }}</a> : {{ genre|index:'1' }}</li>
-{% endfor %}
-</ol></p>
 {% endif %}
-</td>
-</tr></table>
+{% if genres %}
+	<b style="font-size:130%;">Top genres:</b><br>
+	<ol style="font-size: 100%">
+	{% for genre in genres %}
+		<li><a href="{% url 'stats:genres' username genre|index:'0' %}">{{ genre|index:'0' }}</a> : {{ genre|index:'1' }}</li>
+	{% endfor %}
+	</ol>
+<br>
+{% endif %}
+{% if users %}
+	<b style="font-size:160%;">Friends</b><br>
+	<ol style="font-size: 120%">
+	{% for user in users %}
+		<li><a href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}</a></li>
+	{% endfor %}
+	</ol>
+{% endif %}
+</div>
+</div>
 {% endblock %}

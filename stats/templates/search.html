@@ -18,31 +18,29 @@
   </head>
   <body>
     {% include 'navbar.html' %}
-      <br><br><br>
-      <h2></h2>
-      <table width="100%" cellpadding="10">
-            <tr valign="top">
-            <td width="30%"><h3>Albums</h3><ol>
-                {% for album in albums %}
-                    <li><img width="64" height="64" src={{ album|index:'4' }}>&emsp;<a href="{% url 'stats:album' album|index:'1' %}?token={{ token }}&play=">{{ album|index:'0' }}</a>
-                                <!-- &emsp;{{ album|index:'2' }}&ensp;-&ensp;{{ album|index:'3' }} --> 
-                    </li>
-                {% endfor %}
-            </ol></td>
-            <td width="40%"><h3>Artists</h3><ol>
-                {% for artist in artists %}
-                    <li><img width="64" height="64" src="{{ artist|index:'2' }}"></img>&emsp;<a href="{% url 'stats:artist' artist|index:'1' %}?token={{ token }}">{{ artist|index:'0' }}</a>
-                        <!-- &emsp;&emsp;&emsp;<font size='+3'>{{ artist|index:'3' }}</font> -->
-                    </li>
-                {% endfor %}
-            </ol></td>
-            <td width="30%"><h3>Tracks</h3><ol>
-                {% for track in tracks %}
-                    <li><a href={{ track|index:'2' }} target="_blank">{{ track|index:'0' }}</a>&emsp;{{ track|index:'1' }}</li>
-                {% endfor %}
-            </ol></td>
-        </tr></table>
-
+    <br><br><br>
+    <h2></h2>
+    <div class='row'>
+        <div class='col-md'><h3>Albums</h3><ol>
+            {% for album in albums %}
+                <li><img width="64" height="64" src={{ album|index:'4' }}>&emsp;<a href="{% url 'stats:album' album|index:'1' %}?play=">{{ album|index:'0' }}</a>
+                            <!-- &emsp;{{ album|index:'2' }}&ensp;-&ensp;{{ album|index:'3' }} --> 
+                </li>
+            {% endfor %}
+        </ol></div>
+        <div class='col-md'><h3>Artists</h3><ol>
+            {% for artist in artists %}
+                <li><img width="64" height="64" src="{{ artist|index:'2' }}"></img>&emsp;<a href="{% url 'stats:artist' artist|index:'1' %}">{{ artist|index:'0' }}</a>
+                    <!-- &emsp;&emsp;&emsp;<font size='+3'>{{ artist|index:'3' }}</font> -->
+                </li>
+            {% endfor %}
+        </ol></div>
+        <div class='col-md'><h3>Tracks</h3><ol>
+            {% for track in tracks %}
+                <li><a href={{ track|index:'2' }} target="_blank">{{ track|index:'0' }}</a>&emsp;{{ track|index:'1' }}</li>
+            {% endfor %}
+        </ol></div>
+    </div>
       {% include 'js.html' %}
     </body>
 </html>

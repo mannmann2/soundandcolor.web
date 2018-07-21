@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # THIRD PARTY APPS
     'crispy_forms',
+    'notifications',
     # 'stats'
 ]
 
@@ -135,3 +136,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/Users/tom/Desktop/media'

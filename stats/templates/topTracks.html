@@ -4,17 +4,38 @@
 {%block title %}Top Tracks | {{block.super}} {% endblock %}
 {% block content %}
 
-<h3>Top Tracks&emsp;&emsp;<a href = ".?type=artists&time=short_term">Top Artists</a></h3>
+<h3>Top Tracks&emsp;&emsp;<a href = ".?type=artists">Top Artists</a></h3>
 
-<p>
-	<a href=".?type=tracks&time=short_term">Last 4 weeks</a>&emsp;
-	<a href=".?type=tracks&time=medium_term">Last 6 months</a>&emsp;
-	<a href=".?type=tracks&time=long_term">All Time</a>
-</p>
-<br>
-<div class="list-group list-group-flush">
-	{% for top in tops %}
-        <p class="list-group-item"><a href="{{ top|index:'1' }}" target="_blank">{{ top|index:'0' }}</a>&emsp;|&emsp;<a href="{% url 'stats:artist' top|index:'3' %}?token={{ token }}">{{ top|index:'2' }}</a>&emsp;|&emsp;<a href="{% url 'stats:album' top|index:'5' %}?token={{ token }}">{{ top|index:'4' }}</a>&emsp;|&emsp;{{ top|index:'6' }}</p>
-    {% endfor %}
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+	<li class="nav-item">
+		<a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Last 4 weeks</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Last 6 months</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">All Time</a>
+	</li>
+</ul>
+<div class="tab-content" id="myTabContent">
+	<div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+		<div class="list-group list-group-flush">
+			{% for top in tops|index:'0' %}
+				<p class="list-group-item"><a href="{{ top|index:'1' }}" target="_blank">{{ top|index:'0' }}</a>&emsp;|&emsp;<a href="{% url 'stats:artist' top|index:'3' %}">{{ top|index:'2' }}</a>&emsp;|&emsp;<a href="{% url 'stats:album' top|index:'5' %}">{{ top|index:'4' }}</a>&emsp;|&emsp;{{ top|index:'6' }}</p>
+			{% endfor %}
+		</div></div>
+	<div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+		<div class="list-group list-group-flush">
+			{% for top in tops|index:'1' %}
+				<p class="list-group-item"><a href="{{ top|index:'1' }}" target="_blank">{{ top|index:'0' }}</a>&emsp;|&emsp;<a href="{% url 'stats:artist' top|index:'3' %}">{{ top|index:'2' }}</a>&emsp;|&emsp;<a href="{% url 'stats:album' top|index:'5' %}">{{ top|index:'4' }}</a>&emsp;|&emsp;{{ top|index:'6' }}</p>
+			{% endfor %}
+		</div></div>
+	<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+		<div class="list-group list-group-flush">
+			{% for top in tops|index:'2' %}
+				<p class="list-group-item"><a href="{{ top|index:'2' }}" target="_blank">{{ top|index:'0' }}</a>&emsp;|&emsp;<a href="{% url 'stats:artist' top|index:'3' %}">{{ top|index:'2' }}</a>&emsp;|&emsp;<a href="{% url 'stats:album' top|index:'5' %}">{{ top|index:'4' }}</a>&emsp;|&emsp;{{ top|index:'6' }}</p>
+			{% endfor %}
+		</div></div>
 </div>
+
 {% endblock %}
