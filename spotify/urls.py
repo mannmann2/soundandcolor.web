@@ -21,5 +21,5 @@ import notifications.urls
 urlpatterns = [
 	path('', include('stats.urls')),
     path('admin/', admin.site.urls),
-    url('^inbox/notifications/', include(notifications.urls, namespace='notifications')),
+    path('^inbox/notifications/', include(notifications.urls, namespace='notifications')),
 ]

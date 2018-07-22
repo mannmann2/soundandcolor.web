@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load index %}
+
+{%block title %}Download | {{block.super}} {% endblock %}
+{%block head %}Files{% endblock %}
+
+{% block content %}
+<br>
+<p>Click to open/download:</p>
+
+<ol>
+{% for file in files %}
+    <li><a href="/media/{{ file }}">{{ file }}</li></a>
+{% endfor %}
+</ol>
+{% endblock %}

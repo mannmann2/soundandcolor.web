@@ -20,7 +20,7 @@
     {% include 'navbar.html' %}
     <br><br><br>
     <div class="container">
-        <h2>{%block head %}{% endblock%}</h2>
+        <h2>{% block head %}{% endblock %}</h2>
         {% block content %} {% endblock %} 
       
         {% include 'js.html' %}

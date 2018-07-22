@@ -2,14 +2,16 @@
 {% load index %}
 
 {%block title %}Saved Tracks | {{block.super}} {% endblock %}
-{%block head %}Tracks&emsp;&emsp;<a href = .?type=albums>Albums</a>{% endblock %}
+{%block head %}
+<span style="font-size:160%;">Tracks&emsp;&emsp;</span><a style="font-size:120%;" href = .?type=albums>Albums</a>
+{% endblock %}
 
 {% block content %}
 <br>
 <h4>Total: {{ count }}</h4>
 <div class="list-group list-group-flush">
 	{% for track in saved %}
-        <p class="list-group-item"><a href="{{ track|index:'1' }}" target="_blank">{{ track|index:'0' }}</a>&emsp;//&emsp;<a href="{% url 'stats:artist' track|index:'3' %}">{{ track|index:'2' }}</a>&emsp;//&emsp;<a href="{% url 'stats:album' track|index:'5' %}">{{ track|index:'4' }}</a>&emsp;//&emsp;{{ track|index:'6' }}</p>
+        <p class="list-group-item"><a href="{{ track|index:'1' }}" target="_blank">{{ track|index:'0' }}</a>&emsp;|&emsp;<a href="{% url 'stats:artist' track|index:'3' %}">{{ track|index:'2' }}</a>&emsp;|&emsp;<a href="{% url 'stats:album' track|index:'5' %}">{{ track|index:'4' }}</a>&emsp;|&emsp;{{ track|index:'6' }}</p>
     {% endfor %}
 </div>
 {% endblock %}

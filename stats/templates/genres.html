@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load index %}
+
+{%block title %}{{ genre }} | {{block.super}} {% endblock %}
+{%block head %}{{ genre }}{% endblock %}
+
+{% block content %}
+    {% for a in art %}
+        <a href="{% url 'stats:artist' a|index:'0' %}"><img width='128' height='128' src="{{ a|index:'2' }}", title="{{ a|index:'1' }}"></img></a>
+    {% endfor %}
+{% endblock %}
+
+
+<!-- <li><a href="{% url 'mess' %}">Messages <span class="badge">{{ messages.count }}</span> </a></li>
+
+<li><a href="{% url 'profile' %}">{{ request.user }}</a></li> -->

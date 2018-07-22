@@ -87,8 +87,8 @@ def auth(request):
     data = {
         "grant_type": "authorization_code",
         "code": code,
-        # "redirect_uri": "http://www.localhost:8000/auth",
-        "redirect_uri": "http://www.soundandcolor.life/auth",
+        "redirect_uri": "http://www.localhost:8000/auth",
+        # "redirect_uri": "http://www.soundandcolor.life/auth",
         "client_id": 'e6f5f053a682454ca4eb1781064d3881',
         "client_secret" : "e4294f2365ec45c0be87671b0da16596"
         }
@@ -426,7 +426,7 @@ def genres(request, username, genre):
         js2 = get_artist(fid)
         if genre in js2['genres']:
             art.append((js2['id'], js2['name'], js2['images'][-2]['url']))
-    return render(request, 'viz.html', {'genre':genre, 'art':art})
+    return render(request, 'genres.html', {'genre':genre.title(), 'art':art})
 
 
 def recent(request, username):
@@ -462,6 +462,8 @@ def top(request, username):
     sp = spotipy.Spotify(auth=user.token)
     sp.trace = False
     if ttype == 'tracks':
+        # url2 = "https://api.spotify.com/v1/audio-analysis/{id}"
+        # url3 = "https://api.spotify.com/v1/audio-features/{id}"
         for time in ['short_term', 'medium_term', 'long_term']:
             top = []
             js = sp.current_user_top_tracks(time_range=time, limit=50)
@@ -501,6 +503,8 @@ def saved(request, username):
     saved = []
     while True:
         if ttype == 'tracks':
+            # url2 = "https://api.spotify.com/v1/audio-analysis/{id}"
+            # url3 = "https://api.spotify.com/v1/audio-features/{id}"
             for item in js['items']:
                 dur = get_time(item['track']['duration_ms'])
                 saved.append((item['track']['name'], item['track']['external_urls']['spotify'],
