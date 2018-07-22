@@ -21,8 +21,8 @@ $("#snc").load("ref");
 
 }, 1000);
 </script> -->
-<p id="snc" style="line-height:48%; letter-spacing: -6px; font-size:1080%; text-align: center">
-        {% for col in cols %}<b style="color:rgb({{ col|index:'1' }}, {{ col|index:'2' }}, {{ col|index:'3' }})">{{ col|index:'0' }}</b>{% endfor %}
+<p id="snc" style="line-height:48%; letter-spacing: -8px; font-size:1080%; text-align: center">
+        {% for col in cols %}<span style="color:rgb({{ col|index:'1' }}, {{ col|index:'2' }}, {{ col|index:'3' }})">{{ col|index:'0' }}</span>{% endfor %}
 </p>
 <div class="list-group list-group-flush">
     <!-- <p style="font-size:320%; letter-spacing:0px; position:relative; left:0%; top:0%; transform:rotate(-90deg);">Users</p> -->

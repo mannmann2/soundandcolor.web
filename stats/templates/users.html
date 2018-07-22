@@ -4,13 +4,14 @@
 
 {%block title %}Friends | {{block.super}} {% endblock %}
 
-{% block head %}Friends 
-<form style='position:relative; float:right' action="/add" method="get" class="input-group col-12 col-sm-4">
-	<input class="form-control form-control-sm" type="search" placeholder="Username" name="query" aria-label="Search">
+{% block head %}<div class='form-row'>
+	<div class='col'>Friends</div> 
+	<form action="/add" method="get" class="input-group input-group-sm col-10 col-md-5 col-lg-3">
+	<input class="form-control" type="text" placeholder="Username" name="query">
 	<div class="input-group-append">
 	<button role="button" class="btn btn-dark" type='submit'>Add Friend</button>
+</div></form>
 </div>
-</form>
 {% endblock %}
 
 
@@ -19,6 +20,7 @@
 {% if message %}
 	<h4>{{ message }}</h4>
 {% endif %}
+
 <!-- onclick="display()"
 <script type="text/javascript">
 	function display() {
@@ -31,36 +33,75 @@
 		}
 	}
 </script> -->
+
 <br>
-<div class='row'><div style="padding-right:10%" class="col-12 col-md-8 list-group list-group-flush">
+<div class='row'>
+<div style="padding-right:10%" class="col-12 col-md-8 list-group list-group-flush">
 	{% for user in users %}
 		<a class="list-group-item" href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}&emsp;|&emsp;
 				{{ user|index:'1' }}</a>
 	{% endfor %}
 	<br>
 	<p class="list-group-item">Click <a href ="{% url 'stats:refresh' %}">here</a> to refresh all tokens.</p>
+	<br>
 </div>
-{% if genres %}
 <div>
-	<h4>Genres your friends listen to:</h4>
-	<ol>
-	{% for genre in genres %}
-		<li>{{ genre|index:'0' }} : {{ genre|index:'1' }}</li>
-	{% endfor %}
-	</ol>
+<h4>Your friends listen to:</h4><br>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+	<li class="nav-item">
+		<a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Artists</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Genres</a>
+	</li>
+</ul>
+<div class="tab-content" id="myTabContent">
+	<br>
+	<div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+	{% if fids %}
+		<ol>
+		{% for fid in fids %}
+			<li><a href="{% url 'stats:artist' fid|index:'1' %}">{{ fid|index:'0' }}</a> : {{ fid|index:'2' }}</li>
+		{% endfor %}
+		</ol>
+		<br>
+	{% endif %}
+	</div>
+	<div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+	{% if genres %}
+		<ol>
+		{% for genre in genres %}
+			<li>{{ genre|index:'0' }} : {{ genre|index:'1' }}</li>
+		{% endfor %}
+		</ol>
+		<br>
+	{% endif %}
+	</div>
 </div>
-{% endif %}</div>
+</div>
+</div>
 
 {% if notifications %}
 <br><br>
 <h4>Notifications</h4>
 {% for notifi in notifications %}
-<div class='card text-white bg-dark'>
-	<div class='card-body'>
-		<p>{{ notifi|index:'0' }}</p>
-	<a href="/add2?btn=accept&user={{ notifi|index:'1' }}" role="button" class="btn btn-sm btn-success">Accept</a>
-	<a href="/add2?btn=decline&user={{ notifi|index:'1' }}" role="button" class="btn btn-sm btn-danger">Decline</a>
-</div></div>
+<div class='card'>
+	<div class='card-header text-light bg-dark'>
+	<div class='row'>
+		<div class='col'>
+			New Friend Request
+		</div>
+		<div class='col text-right'>
+				{{ notifi|index:'2' }}
+		</div>
+	</div>
+	</div>
+	<div class='card-body bg-light'>
+		<p>{{ notifi|index:'0' }}.</p>
+		<a href="/add2?btn=accept&user={{ notifi|index:'1' }}" role="button" class="btn btn-sm btn-success">Accept</a>
+		<a href="/add2?btn=decline&user={{ notifi|index:'1' }}" role="button" class="btn btn-sm btn-danger">Decline</a>
+	</div>
+</div>
 <br>
 {% endfor %} 
 {% endif %}

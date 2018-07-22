@@ -16,6 +16,7 @@ import json
 import spotipy
 import requests
 from random import random
+from collections import Counter
 import networkx as nx
 from colorthief import ColorThief
 from dateutil.parser import parse
@@ -86,8 +87,8 @@ def auth(request):
     data = {
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": "http://www.localhost:8000/auth",
-        # "redirect_uri": "http://www.soundandcolor.life/auth",
+        # "redirect_uri": "http://www.localhost:8000/auth",
+        "redirect_uri": "http://www.soundandcolor.life/auth",
         "client_id": 'e6f5f053a682454ca4eb1781064d3881',
         "client_secret" : "e4294f2365ec45c0be87671b0da16596"
         }
@@ -96,7 +97,7 @@ def auth(request):
     js = res.json()
     res = requests.get("https://api.spotify.com/v1/me?access_token=" + js['access_token'])
     js1 = res.json()
-    print(js1)
+    print("LOGIN:", js1)
     user = User.objects.filter(username=js1['id'])
     if not user:
         user = User(username=js1['id'], email=js1['email'], uri=js1['uri'], name=js1['display_name'], access_token=js['access_token'], refresh_token=js['refresh_token'], scope=js['scope'])
@@ -128,6 +129,8 @@ def auth(request):
 
     user = authenticate(username=js1['id'], password="password")
     login(request, user)
+    refresh(user)
+    # return refresh_all()
     return HttpResponseRedirect('/friends')
 
 def refresh(user):
@@ -143,26 +146,25 @@ def refresh(user):
     user.token = res.json()['access_token']
     user.save()
 
-def refresh_all(request):
+def refresh_all(request=None):
     f = User.objects.all()
     users = []
     for user in f:
         refresh(user)
         users.append((user.username, user.email, user.username.split(':')[-1]))
-
     return HttpResponseRedirect('/friends')
 
 def get_friends(current_user):
     users = []
-    f = User.objects.all()
     if current_user is None:
-        fx = [user.username for user in f]
+        fx = User.objects.all()
+        for user in fx:
+            users.append((user.username, user.email, user.name or user.username))
     else:
         fx = current_user.friends.split(',')[:-1]
-    for user in f:
-        if user != current_user and user.username in fx:
-            name = user.name or user.username
-            users.append((user.username, user.email, name))
+        for f in fx:
+            user = User.objects.get(username=f)
+            users.append((user.username, user.email, user.name or user.username))
     return users
 
 def add2(request):
@@ -190,15 +192,17 @@ def add_friend(request):
     username = request.GET['query']
     rec = User.objects.filter(username=username)
 
-    if username and rec and username not in current_user.friends.split(',')[:-1]:
+    if username and rec and username != current_user.username and username not in current_user.friends.split(',')[:-1]:
         notify.send(current_user, recipient=rec, verb='wants to be friends.')
         message = 'Notification sent.'
     elif not username:
         message = ''
     elif not rec:
         message = "User does not exist. Make sure they've signed up."
+    elif username == current_user.username:
+        message = 'Lol :)' #####
     else:
-        message = 'You are already friends.'
+        message = 'You are already friends with ' + username + '.'
     return HttpResponseRedirect('/friends?message='+message)
 
 def users(request):
@@ -208,6 +212,8 @@ def users(request):
         message = request.GET['message']
     except:
         message = ''
+
+    fids = []
     genres = {}
     for friend in friends:
         try:
@@ -215,6 +221,7 @@ def users(request):
         except:
             continue
         for fid in js:
+            fids.append(fid)
             js2 = get_artist(fid)['genres']
             for genre in js2:
                 if genre in genres:
@@ -222,9 +229,19 @@ def users(request):
                 else:
                     genres[genre] = 1
     genres = sorted(genres.items(), key=lambda x: x[1], reverse=True)[:30]
-    # notifs = [str(n) for n in current_user.notifications.unread()]
-    notifs = [(n, str(n).split()[0]) for n in current_user.notifications.unread()]
-    return render(request, 'users.html', {'users': friends, 'genres':genres, 'notifications':notifs, 'message':message})
+    fids = sorted(Counter(fids).items(), key=lambda x: x[1], reverse=True)[:30]
+    fids = [(get_artist(fid[0]), fid[1]) for fid in fids]
+    fids = [(a[0]['name'], a[0]['id'], a[1]) for a in fids]
+
+    notifs = []
+    for n in current_user.notifications.unread():
+        time = str(n).split('. ')
+        nn = time[0]
+        actor = nn.split()[0]
+        time = time[1]
+        notifs.append((nn, actor, time))
+
+    return render(request, 'users.html', {'users': friends, 'genres':genres, 'fids':fids, 'notifications':notifs, 'message':message})
 
 def home(request):
     cols = []
@@ -276,7 +293,7 @@ def details(request, username):
                 genres[genre] += 1
             else:
                 genres[genre] = 1
-    genres = sorted(genres.items(), key=lambda x: x[1], reverse=True)[:10]
+    genres = sorted(genres.items(), key=lambda x: x[1], reverse=True)[:20]
 
     count = 0
     common = []
@@ -291,7 +308,6 @@ def details(request, username):
 
     url = 'https://api.spotify.com/v1/me/player/currently-playing?access_token=' + user.token
     js1 = requests.get(url)
-    print(js1)
     if js1.status_code == 200:
         item = js1.json()['item']
         now = [item['name'], item['external_urls']['spotify'], item['artists'][0]['name'], item['artists'][0]['id'], item['album']['name'], item['album']['id']]
