@@ -5,12 +5,23 @@
 {%block head %}Following{% endblock %}
 
 {% block content %}
-<br>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'stats:details' username %}">{{ username }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Following</li>
+    </ol>
+</nav>
 {% if following %}
 <h4>Total: {{ count }}</h4>
 <div class="list-group list-group-flush">
     {% for artist in following %}
-        <p class="list-group-item"><img width="64" height="64" src={{ artist|index:'2' }}></img>&emsp;<font size='+2'><a href="{% url 'stats:artist' artist|index:'1' %}">{{ artist|index:'0' }}</a></font>&emsp;&emsp;&emsp;<font size='+3'>{{ artist|index:'3' }}</font></p>
+        <div class="list-group-item">
+            <div class='row align-items-center'>
+                <img width="64" height="64" src={{ artist|index:'2' }}>
+                <div class='col'><font size='+2'><a href="{% url 'stats:artist' artist|index:'1' %}">{{ artist|index:'0' }}</a></font></div>
+                <div style='padding-right:10px'><font size='+3'>{{ artist|index:'3' }}</font></div>
+            </div>
+        </div>
     {% endfor %}
 </div>
 {% endif %}

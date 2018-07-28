@@ -3,15 +3,25 @@
 
 {%block title %}Saved Albums | {{block.super}} {% endblock %}
 {%block head %}
-<a style="font-size:120%;" href = .?type=tracks>Tracks</a><span style="font-size:160%;">&emsp;&emsp;Albums</span>
+<a style="font-size:100%;" href = .?type=tracks>Tracks</a><span style="font-size:128%;">&emsp;&emsp;Albums</span>
 {% endblock %}
 
 {% block content %}
-<br>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'stats:details' username %}">{{ username }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Saved Albums</li>
+    </ol>
+</nav>
 <h4>Total: {{ count }}</h4>
 <div class="list-group list-group-flush">
 {% for album in saved %}
-    <p class="list-group-item"><img width="64" height="64" src="{{ album|index:'5' }}">&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?play=">{{ album|index:'0' }}</a></font>&emsp;{{ album|index:'2' }}&ensp;-&ensp;<a href="{% url 'stats:artist' album|index:'4' %}">{{ album|index:'3' }}</a></p>
-    {% endfor %}
+<div class='list-group-item'>
+    <div class='row align-items-center'>
+        <img width="64" height="64" src="{{ album|index:'5' }}">
+        <div class='col'><font size="+1"><a href="{% url 'stats:album' album|index:'1' %}?play=">{{ album|index:'0' }}</a></font> by <a href="{% url 'stats:artist' album|index:'4' %}">{{ album|index:'3' }}</a><br>{{ album|index:'2' }}</div>
     </div>
+</div>
+{% endfor %}
+</div>
 {% endblock %}

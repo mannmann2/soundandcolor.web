@@ -4,41 +4,51 @@
 {%block title %}{{ name }} | {{block.super}} {% endblock %}
 
 {% block content %}
-<div class='row'><div class='col-12 col-md-8'>
-	<img src="{{ img }}">
+<div class='row'><div class='col-12 col-md-7'>
+	<img width='640' height='640' src="{{ img }}">
 
 	<p><b style="font-size:320%;">{{ name }}</b>&emsp;&emsp;&emsp;<b style="font-size:300%;">{{ pop }}</b><br>
-		<iframe src="https://open.spotify.com/follow/1/?uri={{ uri }}&size=detail&theme=light" 
-		width="300" height="56" scrolling="no" frameborder="0" style="border:none; overflow:hidden;" 
-		allowtransparency="true"></iframe>	
-	</p>
+	<iframe src="https://open.spotify.com/follow/1/?uri={{ uri }}&size=detail&theme=light" width="300" height="56" scrolling="no" frameborder="0" style="border:none; overflow:hidden;" allowtransparency="true"></iframe></p>
+	<!--  list-group-item-action list-group-item list-group-item-primary -->
+	<p class="text-capitalize"><b>{{ genres }}</b></p>
 	
-	<p><b><i>{{ genres }}</i></b></p>
+	{% if about %}
+	<h3><a href='#' class="list-group-item list-group-item-action list-group-item-primary" data-toggle="collapse" data-target="#collapse1">About</a></h3>
+	<div id="collapse1" class="collapse show">
+		<p class='text-justify'>{{ about }} <a href='{{ w_url }}' target="_blank">Wikipedia</a></p>
+	</div>
+	{% endif %}
 
-	<h3>Top Tracks</h3>
-	<ol>
-		{% for track in tops %}
-	        <li><a href={{ track|index:'2' }} target="_blank">{{ track|index:'0' }}</a>&emsp;{{ track|index:'1' }}</li>
-	    {% endfor %}
-	</ol>
-
-<h3>Albums</h3>
-<ol>
-	{% for album in albums %}
-        <li><img width="64" height="64" src={{ album|index:'4' }}>&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}">{{ album|index:'0' }}</a></font>&emsp;{{ album|index:'2' }}&ensp;-&ensp;{{ album|index:'3' }}</li>
-    {% endfor %}
-</ol>
-
-
-</div><div>
-		<iframe src="https://open.spotify.com/embed?uri={{ uri }}&theme=white" width="300" height="380" 
-			frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-		<h4><br>Related Artists</h4>
-		{% for artist in related %}
-			<img src={{ artist|index:'2' }}></img>&emsp;
-			<a href="{% url 'stats:artist' artist|index:'1' %}">{{ artist|index:'0' }}</a>
-			&emsp;&emsp;&emsp;<font size='+1'>{{ artist|index:'3' }}</font><br>
+	<h3><a href='#' class="list-group-item list-group-item-action list-group-item-success" data-toggle="collapse" data-target="#collapse2">Albums</a></h3>
+	<div id="collapse2" class="collapse">
+	<ol class='list-group'>		
+		{% for album in albums %}
+			<li class="list-group-item">
+			<div class='row align-items-center'>
+				<img width="64" height="64" src={{ album|index:'4' }}>
+				<div class='col'><font size="+2"><a href="{% url 'stats:album' album|index:'1' %}">{{ album|index:'0' }}</a></font><br>{{ album|index:'3' }}</div>
+				<div style='padding-right:10px'>{{ album|index:'2' }}</div>
+			</div>
+			</li>
 		{% endfor %}
+	</ol>
+	</div>
+</div>
+<div class='col'>
+	<!-- <div class='row'><div class='col'> -->
+	<iframe src="https://open.spotify.com/embed?uri={{ uri }}&theme=white" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe><br>
+	<!-- </div><div class='col'> -->
+	<br><h4>Top Tracks</h4>
+	<ol>{% for track in tops %}
+		<li><a href={{ track|index:'2' }} target="_blank">{{ track|index:'0' }}</a>&emsp;{{ track|index:'1' }}</li>
+	{% endfor %}</ol>
+		<!-- </div></div> -->
+	<br>
+	<h4>Related Artists</h4>
+	{% for artist in related %}
+		<img src={{ artist|index:'2' }}></img>&emsp;
+		<a href="{% url 'stats:artist' artist|index:'1' %}">{{ artist|index:'0' }}</a>
+		&emsp;&emsp;&emsp;<font size='+1'>{{ artist|index:'3' }}</font><br>
+	{% endfor %}
 </div></div>
-
 {% endblock %}

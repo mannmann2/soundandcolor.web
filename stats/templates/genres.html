@@ -2,7 +2,7 @@
 {% load index %}
 
 {%block title %}{{ genre }} | {{block.super}} {% endblock %}
-{%block head %}{{ genre }}{% endblock %}
+{%block head %}<p class="text-capitalize">{{ genre }}</p>{% endblock %}
 
 {% block content %}
     {% for a in art %}

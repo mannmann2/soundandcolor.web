@@ -9,9 +9,9 @@
 </style>
 {% endblock %}
 
-<nav class="navbar fixed-top navbar-expand-lg navbar-light"> 
+<nav class="navbar fixed-top navbar-expand-lg navbar-light" style='height:52px;'> 
   <!-- #191414; -->
-  <a class="navbar-brand" href="/">
+  <a class="navbar-brand" title='Sound & Color' href="/">
     <img src="{% static 'logo.png' %}" width="30" height="30" class="d-inline-block align-top" alt=".">
   </a>
   <a class="navbar-brand" href="https://open.spotify.com/track/3wrqiZJKMSpLBvgFJfFOp1" target="_blank">
@@ -21,18 +21,19 @@
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav">
     {% if request.user.is_authenticated %}
-    <ul class="navbar-nav mr-4">
       <li class="nav-item ">
-          <a class="nav-link" href="{% url 'stats:new' %}">New</a>
+        <a class="nav-link" href="{% url 'stats:new' %}">New</a>
       </li>
       <li class="nav-item ">
         <a class="nav-link" href="{% url 'stats:graphs' %}">Graph</a>
       </li>
+    {% endif %}
       <li class="nav-item ">
-          <a class="nav-link" href="{% url 'stats:download' %}">Files</a>
-        </li>
-<!--       <li class="nav-item dropdown">
+        <a class="nav-link" href="{% url 'stats:download' %}">Files</a>
+      </li>
+      <!-- <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Dropdown
         </a>
@@ -43,38 +44,31 @@
           <a class="dropdown-item" href="#">Something else here</a>
         </div>
       </li> -->
-
     </ul>
-    {% endif %}
     <form action="/search" method="get" class="form-inline col-sm-4 ml-auto mr-auto">
       <input class="form-control form-control-sm col-sm-12" type="search" placeholder="Search" name="query" aria-label="Search">
     </form>
-      <ul class="navbar-nav">
-        {% if request.user.is_authenticated %}
-      
-          <li class="nav-item"><a class="nav-link" href="{% url 'stats:recent' request.user %}">Recent</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'stats:top' request.user %}?type=tracks&time=short_term">Top</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'stats:saved' request.user %}?type=albums">Saved</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'stats:following' request.user %}">Following</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'stats:users' %}">Friends <span class="badge badge-danger">{% live_notify_badge %}</span></a>
-          </li>
-          <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ request.user }}</a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="{% url 'stats:details' request.user %}">Profile</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="{% url 'stats:logout' %}">Logout</a>
-            </div>
-          </li>      
-          <li><a class="nav-link" href=""></a></li>
-
-        {% else %}
-          <li class="nav-item"><a class="nav-link" 
-          href="https://accounts.spotify.com/authorize/?client_id=e6f5f053a682454ca4eb1781064d3881&response_type=code&redirect_uri=http://www.localhost:8000/auth&scope=user-top-read%20user-follow-read%20user-library-read%20user-read-recently-played%20user-read-email%20user-read-currently-playing%20user-read-playback-state%20user-modify-playback-state%20streaming%20playlist-modify-private%20playlist-modify-public">
-              Log In<span class="sr-only">(current)</span></a></li>
-        <!-- <li class="nav-item"><a class="nav-link" href="">Sign Up<span class="sr-only">(current)</span></a></li> -->
-
-        {% endif %}
-    </ul>
+    <ul class="navbar-nav">
+      {% if request.user.is_authenticated %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'stats:recent' request.user %}">Recent</a></li>
+        <!-- <li class="nav-item"><a class="nav-link" href="{% url 'stats:top' request.user %}?type=tracks">Top</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'stats:saved' request.user %}?type=albums">Saved</a></li> -->
+        <li class="nav-item"><a class="nav-link" href="{% url 'stats:following' request.user %}">Following</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'stats:users' %}">Friends <span class="badge badge-danger">{% live_notify_badge %}</span></a></li>
+        <li class="nav-item"><a title='Profile' class="nav-link" href="{% url 'stats:details' request.user %}">{{ request.user }}</a></li>
+        <li class="nav-item"><a title='Logout' class="nav-link" href="{% url 'stats:logout' %}"><i class="material-icons">power_settings_new</i></a></li>
+        <!-- <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ request.user }}</a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{% url 'stats:details' request.user %}">Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'stats:logout' %}">Logout</a>
+          </div>
+        </li>       -->
+      {% else %}
+        <li class="nav-item"><a class="nav-link" href="https://accounts.spotify.com/authorize/?client_id=e6f5f053a682454ca4eb1781064d3881&response_type=code&redirect_uri=http://www.localhost:8000/auth&scope=user-top-read%20user-follow-read%20user-library-read%20user-read-recently-played%20user-read-email%20user-read-currently-playing%20user-read-playback-state%20user-modify-playback-state%20streaming%20playlist-modify-private%20playlist-modify-public">Log In<span class="sr-only">(current)</span></a></li>
+      <!-- <li class="nav-item"><a class="nav-link" href="">Sign Up<span class="sr-only">(current)</span></a></li> -->
+      {% endif %}
+  </ul>
     
   </div>
 </nav>

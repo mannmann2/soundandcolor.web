@@ -17,6 +17,8 @@ import spotipy
 import requests
 from random import random
 from collections import Counter
+
+import wikipedia
 import networkx as nx
 from colorthief import ColorThief
 from dateutil.parser import parse
@@ -287,7 +289,11 @@ def details(request, username):
     genres = {}
     js1 = get_following(username)
     for fid in js1:
+        # try:
         js2 = get_artist(fid)['genres']
+        # except:
+        #     print(fid)
+        #     continue
         for genre in js2:
             if genre in genres:
                 genres[genre] += 1
@@ -376,7 +382,7 @@ def new(request):
         else:
             img3 = ''
 
-        albs.append((item['name'], item['id'], parse(item['release_date']).strftime("%d %B"), item['album_type'], item['artists'][0]['name'], item['artists'][0]['id'], img3))
+        albs.append((item['name'], item['id'], parse(item['release_date']).strftime("%d %B"), item['album_type'].title(), item['artists'][0]['name'], item['artists'][0]['id'], img3))
 
         es.index('simple-album', doc_type='_doc', id=item['id'], body=item)
 
@@ -416,7 +422,7 @@ def following(request, username):
         else:
             break
     es.index('following', doc_type='_doc', id=username, body={'ids':ids})
-    return render(request, 'following.html', {'following':foll, 'count':len(ids)})
+    return render(request, 'following.html', {'following':foll, 'count':len(ids), 'username':username})
 
 
 def genres(request, username, genre):
@@ -426,7 +432,7 @@ def genres(request, username, genre):
         js2 = get_artist(fid)
         if genre in js2['genres']:
             art.append((js2['id'], js2['name'], js2['images'][-2]['url']))
-    return render(request, 'genres.html', {'genre':genre.title(), 'art':art})
+    return render(request, 'genres.html', {'genre':genre, 'art':art})
 
 
 def recent(request, username):
@@ -445,7 +451,7 @@ def recent(request, username):
                         # (datetime.strptime(item['played_at'],'%Y-%m-%dT%H:%M:%S.%fZ').timestamp()+19800).strftime('%B %d, %-I:%M %p')))
 
         es.index('simple-track', doc_type='_doc', id=item['track']['id'], body=item['track'])
-    return render(request, 'recent.html', {'recent':recents})
+    return render(request, 'recent.html', {'recent':recents, 'username':username})
 
 
 def top(request, username):
@@ -470,7 +476,7 @@ def top(request, username):
             for item in js['items']:
                 dur = get_time(item['duration_ms'])
                 top.append((item['name'], item['external_urls']['spotify'],
-                            item['album']['artists'][0]['name'], item['album']['artists'][0]['id'], item['album']['name'], item['album']['id'], dur))
+                            item['album']['artists'][0]['name'], item['album']['artists'][0]['id'], item['album']['name'], item['album']['id'], dur, item['album']['images'][2]['url']))
 
                 es.index('track', doc_type='_doc', id=item['id'], body=item)
             tops.append(top)
@@ -489,7 +495,7 @@ def top(request, username):
                 es.index('artist', doc_type='_doc', id=item['id'], body=item)
             tops.append(top)
             template = "topArtists.html"
-    return render(request, template, {'tops':tops})
+    return render(request, template, {'tops':tops, 'username':username})
 
 
 def saved(request, username):
@@ -508,8 +514,7 @@ def saved(request, username):
             for item in js['items']:
                 dur = get_time(item['track']['duration_ms'])
                 saved.append((item['track']['name'], item['track']['external_urls']['spotify'],
-                              item['track']['album']['artists'][0]['name'], item['track']['album']['artists'][0]['id'],
-                              item['track']['album']['name'], item['track']['album']['id'], dur))
+                              item['track']['album']['artists'][0]['name'], item['track']['album']['artists'][0]['id'], item['track']['album']['name'], item['track']['album']['id'], dur, item['track']['album']['images'][0]['url']))
                 count += 1
                 es.index('track', doc_type='_doc', id=item['track']['id'], body=item['track'])
 
@@ -529,7 +534,7 @@ def saved(request, username):
         else:
             break
 
-    context = {'saved':saved, 'count':count}
+    context = {'saved':saved, 'count':count, 'username':username}
     if ttype == 'tracks':
         return render(request, 'savedTracks.html', context)
     else:
@@ -545,9 +550,26 @@ def artist(request, artist):
     es.index('artist', doc_type='_doc', id=artist, body=js1)
 
     name = js1.pop('name')
-    genres = ', '.join(js1.pop('genres'))
+    try:
+        page = wikipedia.page(name)
+        about = page.summary
+        w_url = page.url
+    except wikipedia.exceptions.DisambiguationError as e:
+        about = e.options
+        w_url = 'http://en.wikipedia.org/'
+        for option in e.options:
+            if any(x in option for x in ['rapper', 'singer', 'artist', 'band']):
+                page = wikipedia.page(option)
+                about = "----------------------------->" + page.summary
+                w_url = page.url
+                break          
+    except wikipedia.exceptions.PageError as e:
+        about = ''
+        w_url = ''
+
+    genres = ', '.join([x.title() for x in js1.pop('genres')])
     pop = js1.pop('popularity')
-    img = js1.pop('images')[1]['url']
+    img = js1.pop('images')[0]['url']
     uri = js1.pop('uri')
 
     url = "https://api.spotify.com/v1/artists/" + artist + "/top-tracks?country=US&access_token=" + token #
@@ -592,7 +614,7 @@ def artist(request, artist):
                 img3 = item['images'][-1]['url']
             else:
                 img3 = ''
-            albs.append((item['name'], item['id'], item['release_date'][:4], item['album_type'], img3))
+            albs.append((item['name'], item['id'], item['release_date'][:4], item['album_type'].title(), img3))
 
         if js['next']:
             res = requests.get(js['next']+"&access_token=" + token)
@@ -600,7 +622,7 @@ def artist(request, artist):
         else:
             break
     context = {'img':img, 'name':name, 'pop':pop, 'genres':genres,
-               'tops':trks, 'albums':albs, 'related': related, 'uri':uri}
+               'tops':trks, 'albums':albs, 'related': related, 'uri':uri, 'about':about, 'w_url':w_url}
     return render(request, 'artist.html', context)
 
 
@@ -635,9 +657,15 @@ def album(request, album):
     img_url = urlopen(img)
     img_file = io.BytesIO(img_url.read())
     color_thief = ColorThief(img_file)
+    
     tic = time.time()
-    dom = color_thief.get_color(quality=8)
-    print(time.time() -tic)
+    colors = list(color_thief.get_color(quality=2))
+    for i, color in enumerate(colors):
+        colors[i] = color + (255 - color) * 0.2
+    print(time.time() - tic)
+    lum = 0.2126*colors[0] + 0.7152*colors[1] + 0.0722*colors[2]
+    text='0,0,0' if lum>140 else '240,240,240'
+    print(lum,text)
     url = "https://api.spotify.com/v1/albums/" + album + "/tracks?limit=50&access_token=" + token
     res = requests.get(url)
     js1 = res.json()
@@ -659,8 +687,8 @@ def album(request, album):
 
     context = {
         'img':img, 'name':name, 'pop':pop, 'artist':artist_name,
-        'id':artist_id, 'type':album_type, "dom":dom, 'genres':genres,
-        'label':label, 'date':date, 'tracks':trks, 'uri':uri
+        'id':artist_id, 'type':album_type, "colors":colors, 'genres':genres,
+        'label':label, 'date':date, 'tracks':trks, 'uri':uri, 'text1':text
         }
     return render(request, 'album.html', context)
 

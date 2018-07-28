@@ -6,8 +6,7 @@
 
 {% block content %}
 <meta http-equiv="refresh" content="4" >
-
-<br>
+<div class='container'>
 <!-- <script type="text/javascript" src="https://ajax.microsoft.com/ajax/jQuery/jquery-1.4.2.min.js">
     // $(document).ready(function() {
     //   $.ajaxSetup({ cache: false }); // This part addresses an IE bug.  without it, IE will only load the first number and will never refresh
@@ -21,10 +20,10 @@ $("#snc").load("ref");
 
 }, 1000);
 </script> -->
-<p id="snc" style="line-height:48%; letter-spacing: -8px; font-size:1080%; text-align: center">
-        {% for col in cols %}<span style="color:rgb({{ col|index:'1' }}, {{ col|index:'2' }}, {{ col|index:'3' }})">{{ col|index:'0' }}</span>{% endfor %}
-</p>
-<div class="list-group list-group-flush">
+<div id="snc" style="line-height:64%; letter-spacing: -8px; font-size:920%; text-align: center"><br>
+        {% for col in cols %}<b style="color:rgb({{ col|index:'1' }}, {{ col|index:'2' }}, {{ col|index:'3' }})">{{ col|index:'0' }}</b>{% endfor %}
+</div>
+<div class="list-group list-group-flush" style="width:106%; padding-left: 4%;">
     <!-- <p style="font-size:320%; letter-spacing:0px; position:relative; left:0%; top:0%; transform:rotate(-90deg);">Users</p> -->
     {% if request.user.is_authenticated %}
         {% for user in users %}
@@ -35,5 +34,5 @@ $("#snc").load("ref");
     {% else %}
         <p class="list-group-item"></p>
     {% endif %}
-</div>
+</div></div>
 {% endblock %}

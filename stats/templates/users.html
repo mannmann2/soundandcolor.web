@@ -4,7 +4,8 @@
 
 {%block title %}Friends | {{block.super}} {% endblock %}
 
-{% block head %}<div class='form-row'>
+{% block head %}
+<div class='form-row'>
 	<div class='col'>Friends</div> 
 	<form action="/add" method="get" class="input-group input-group-sm col-10 col-md-5 col-lg-3">
 	<input class="form-control" type="text" placeholder="Username" name="query">
@@ -36,7 +37,7 @@
 
 <br>
 <div class='row'>
-<div style="padding-right:10%" class="col-12 col-md-8 list-group list-group-flush">
+<div style="padding-right:10%" class="col list-group list-group-flush">
 	{% for user in users %}
 		<a class="list-group-item" href="{% url 'stats:details' user|index:'0' %}">{{ user|index:'2' }}&emsp;|&emsp;
 				{{ user|index:'1' }}</a>
@@ -45,7 +46,7 @@
 	<p class="list-group-item">Click <a href ="{% url 'stats:refresh' %}">here</a> to refresh all tokens.</p>
 	<br>
 </div>
-<div>
+<div class='col-10 col-md-5 col-lg-3'>
 <h4>Your friends listen to:</h4><br>
 <ul class="nav nav-tabs" id="myTab" role="tablist">
 	<li class="nav-item">

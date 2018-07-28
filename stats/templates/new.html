@@ -8,11 +8,13 @@
 <br>
 <div class="list-group list-group-flush">
 	{% for album in new %}
-        <p class="list-group-item">{{ album|index:'2' }}<br>
-        <img width="128" height="128" src="{{ album|index:'6' }}">&emsp;<font size="+2"><a href="{% url 'stats:album' album|index:'1' %}?play=">{{ album|index:'0' }}</a></font>
-        &ensp;-&ensp;{{ album|index:'3' }}&ensp;-&ensp;
-        <a href="{% url 'stats:artist' album|index:'5' %}">{{ album|index:'4' }}</a>
-        </p>
+        <div class="list-group-item">
+            <div class='row align-items-center'>
+                <img width="128" height="128" src="{{ album|index:'6' }}">
+                <div class='col'><font size="+1"><a href="{% url 'stats:album' album|index:'1' %}?play=">{{ album|index:'0' }}</a></font> by <a href="{% url 'stats:artist' album|index:'5' %}">{{ album|index:'4' }}</a><br>{{ album|index:'3' }}</div>
+                <div>{{ album|index:'2' }}</div>
+            </div>
+        </div>
     {% endfor %}
 </div>
 {% endblock %}

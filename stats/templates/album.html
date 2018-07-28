@@ -4,15 +4,19 @@
 {%block title %}{{ name }} | {{block.super}} {% endblock %}
 {%block style %}
 <style>
-body, nav.navbar {
-    background-color:rgba({{ dom|index:'0' }},{{ dom|index:'1' }},{{ dom|index:'2' }}, 0.75);
+footer, nav.navbar {
+    color:rgb({{ text1 }});
+    background-color:rgb({{ colors|index:'0' }},{{ colors|index:'1' }},{{ colors|index:'2' }});
+}
+body {
+    background-color:rgba({{ colors|index:'0' }},{{ colors|index:'1' }},{{ colors|index:'2' }}, 0.85);
+    color:rgb({{ text1 }});
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<p>{{ dom }}</p>
-<div class='row'><div class="col-7" style="padding-right:20px;">
+<div class='row'><div class="col-12 col-md-7" style="padding-right:20px;">
 <img src="{{ img }}">
 <p><b style="font-size:320%;">{{ name }}</b>&emsp;&emsp;&emsp;<b style="font-size:300%;">{{ pop }}</b>
 <br>By <a href="{% url 'stats:artist' id %}"><b>{{ artist }}</b></a><br>
@@ -21,21 +25,18 @@ body, nav.navbar {
 {{ genres }}</p>
 
 <p>{{ label }}</p>
-
-<ul>
-	{% for key, value in album.items %}
-        <li>{{ key }} : {{ value }}</li>
-    {% endfor %}
-</ul>
-<h3>Tracks</h3>
 <ol>
-	{% for track in tracks %}
-        <li><a href="{{ track|index:'2' }}" target="_blank">{{ track|index:'0' }}</a>&emsp;{{ track|index:'1' }}</li>
+    {% for track in tracks %}
+        <li><b><a href="{{ track|index:'2' }}" target="_blank">{{ track|index:'0' }}</a></b>&emsp;{{ track|index:'1' }}</li>
     {% endfor %}
 </ol>
 </div>
-<div>
-    <iframe src="https://open.spotify.com/embed?uri={{ uri }}&theme=white" width="300" height="380" 
-    frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+<div class='col'>
+    <!-- <div class='row'><div class='col'> -->
+    <iframe src="https://open.spotify.com/embed?uri={{ uri }}&theme=white" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+    <p>{{ colors }}</p>
+
+    <!-- </div><div class='col'> -->
+    <!-- </div></div> -->
 </div></div>
 {% endblock %}

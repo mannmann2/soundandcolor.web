@@ -1,12 +1,17 @@
 {% extends "base.html" %}
 {% load index %}
+{% load staticfiles %}
 
 {%block title %}{{ name }} | {{block.super}}{% endblock %}
 {%block head %}{% endblock%}
 {% block content %}
-<div class='row'><div class='col-md-7'>
-{%if img %}
-	<img src="{{ img }}">
+<div class='row'><div class='col-md-6'>
+	<!-- <div class="jumbotron jumbotron-fluid">
+		<div class="container"> -->
+{% if img %}
+	<img height=200 width=200 src="{{ img }}">
+{% else %}
+	<img height=200 width=200 src="{% static 'user.png' %}">
 {% endif %}
 <p><b style="font-size:500%;">{{ name }}</b><br>
 	<iframe src="https://open.spotify.com/follow/1/?uri={{ uri }}&size=detail&theme=light" 
@@ -16,35 +21,43 @@
 	{{ id }}<br>
 {% endif %}
 <i>{{ email }}</i></p>
+<!-- </div></div> -->
 <br>
-<div class="list-group list-group-flush" style="font-size: 160%">
-	<a class="list-group-item" href="{% url 'stats:recent' username %}">Recently Played</a>
-	<a class="list-group-item" href="{% url 'stats:top' username %}?type=tracks">Top</a>
-    <a class="list-group-item" href="{% url 'stats:saved' username %}?type=tracks">Saved Tracks</a>
-    <a class="list-group-item" href="{% url 'stats:saved' username %}?type=albums">Saved Albums</a>
-	<a class="list-group-item" href="{% url 'stats:following' username %}">Following</a>
-</div>
+	<div class="btn-group mr-2 mt-2" role="group">
+			<a href="{% url 'stats:following' username %}" role="button" class="btn btn-primary">Following</a>
+	</div>
+	<div class="btn-group mr-2 mt-2" role="group">
+		<a href="{% url 'stats:recent' username %}" role='button' class="btn btn-success">Recently Played</a>
+	</div><br>
+	<div class="btn-group mr-2 mt-2" role="group">
+		<a role="button" class="btn btn-danger" href="{% url 'stats:top' username %}?type=tracks">Top Tracks</a>
+		<a crole="button" class="btn btn-danger" href="{% url 'stats:top' username %}?type=artistss">Top Artists</a>
+	</div>
+	<div class="btn-group mr-2 mt-2" role="group">
+		<a role="button" class="btn btn-warning" href="{% url 'stats:saved' username %}?type=tracks">Saved Tracks</a>
+		<a role="button" class="btn btn-warning" href="{% url 'stats:saved' username %}?type=albums">Saved Albums</a>
+	</div>
 <div>
 	{% if common %}
-		<br><b style="font-size:200%;">Artists in common: {{ count }}</b><br><p>
+		<br><b style="font-size:200%;">Artists in common: {{ count }}</b><br><p class='text-justify'>
 		{% for artist in common %}
 			<a href="{% url 'stats:artist' artist|index:'1' %}">{{ artist|index:'0' }}</a>, 
 		{% endfor %}
 		</p>
 	{% endif %}
 </div></div>
-<div class='col-12 col-md-5' style="padding-left:10%; padding-top:4%">
-{% if now %}
+<div class='col-12 col-md-6' style="padding-left:10%; padding-top:6%">
 	<b style="font-size:130%;">Now Playing:</b><br>
+{% if now %}
 	<p>&emsp;<a href="{{ now|index:'1' }}" target="_blank">{{ now|index:'0' }}</a> by <a href="{% url 'stats:artist' now|index:'3' %}">{{ now|index:'2' }}</a><br>&emsp;Album: <a href="{% url 'stats:album' now|index:'5' %}">{{ now|index:'4' }}</a>
 	</p>
-<br>
 {% endif %}
+<br>
 {% if genres %}
 	<b style="font-size:130%;">Top genres:</b><br>
 	<ol style="font-size: 100%">
 	{% for genre in genres %}
-		<li><a href="{% url 'stats:genres' username genre|index:'0' %}">{{ genre|index:'0' }}</a> : {{ genre|index:'1' }}</li>
+		<li class='text-capitalize'><a href="{% url 'stats:genres' username genre|index:'0' %}">{{ genre|index:'0' }}</a> : {{ genre|index:'1' }}</li>
 	{% endfor %}
 	</ol>
 <br>
