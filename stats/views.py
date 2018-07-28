@@ -312,13 +312,14 @@ def details(request, username):
             common.append((item['name'], item['id']))
         count = len(common)
 
+    now = []
     url = 'https://api.spotify.com/v1/me/player/currently-playing?access_token=' + user.token
     js1 = requests.get(url)
+    print(js1.text)
     if js1.status_code == 200:
         item = js1.json()['item']
-        now = [item['name'], item['external_urls']['spotify'], item['artists'][0]['name'], item['artists'][0]['id'], item['album']['name'], item['album']['id']]
-    else:
-        now = []
+        if item:
+            now = [item['name'], item['external_urls']['spotify'], item['artists'][0]['name'], item['artists'][0]['id'], item['album']['name'], item['album']['id']]
 
     context = {
         'name':name, 'id':idd, 'email':email, 'img':img,
