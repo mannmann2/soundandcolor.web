@@ -1,0 +1,7 @@
+django
+django-crispy-forms
+django-notifications-hq
+wikipedia
+spotipy
+colorthief
+elasticsearch

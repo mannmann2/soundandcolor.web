@@ -133,7 +133,7 @@ def auth(request):
     login(request, user)
     refresh(user)
     # return refresh_all()
-    return HttpResponseRedirect('/friends')
+    return HttpResponseRedirect('/'+user.username+'$')
 
 def refresh(user):
     data = {
@@ -252,9 +252,12 @@ def home(request):
     return render(request, 'home.html', {'users': get_friends(None), 'cols':cols})
 
 
-
 def get_following(username):
-    return set(es.get('following', doc_type='_doc', id=username)['_source']['ids'])
+    try:
+        return set(es.get('following', doc_type='_doc', id=username)['_source']['ids'])
+    except:
+        foll, ids = pre_following(username)
+        return set(ids)
 
 def get_artist(fid):
     return es.get('artist', doc_type='_doc', id=fid)['_source']
@@ -315,7 +318,6 @@ def details(request, username):
     now = []
     url = 'https://api.spotify.com/v1/me/player/currently-playing?access_token=' + user.token
     js1 = requests.get(url)
-    print(js1.text)
     if js1.status_code == 200:
         item = js1.json()['item']
         if item:
@@ -396,7 +398,7 @@ def new(request):
     return render(request, 'new.html', {'new':albs})
 
 
-def following(request, username):
+def pre_following(username):
     user = User.objects.get(username=username)
     foll = []
     url = "https://api.spotify.com/v1/me/following?type=artist&limit=50&access_token=" + user.token
@@ -423,6 +425,10 @@ def following(request, username):
         else:
             break
     es.index('following', doc_type='_doc', id=username, body={'ids':ids})
+    return foll, ids
+
+def following(request, username):
+    foll, L = pre_following(username)
     return render(request, 'following.html', {'following':foll, 'count':len(ids), 'username':username})
 
 
@@ -561,7 +567,7 @@ def artist(request, artist):
         for option in e.options:
             if any(x in option for x in ['rapper', 'singer', 'artist', 'band']):
                 page = wikipedia.page(option)
-                about = "----------------------------->" + page.summary
+                about = "----------------------------->" + option + ' ' + page.summary
                 w_url = page.url
                 break          
     except wikipedia.exceptions.PageError as e:

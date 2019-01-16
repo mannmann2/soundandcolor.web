@@ -25,7 +25,7 @@ SECRET_KEY = 'twaks-&fh^c%3z#qm7*pjfj-hln_=53^x#e$def8n$bswu8xy1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['www.localhost', 'www.soundandcolor.life', 'www.soundandcolor.dlinkddns.com', 'www.192.168.1.100']
+ALLOWED_HOSTS = ['www.localhost', 'www.soundandcolor.life']
 
 # SECURE_SSL_REDIRECT = True
 # SESSION_COOKIE_SECURE = True
